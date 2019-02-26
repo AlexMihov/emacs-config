@@ -1,0 +1,28 @@
+
+;; ----- smex-history -----
+(
+ json-pretty-print
+ server-start
+ server-mode
+ ansi-term
+ eshell
+ magit-pull
+ magit-clone
+)
+
+;; ----- smex-data -----
+(
+ (eval-buffer . 5)
+ (load-theme . 1)
+ (customize-themes . 1)
+ (customize-create-theme . 1)
+ (markdown-mode . 1)
+ (ispell-buffer . 1)
+ (server-start . 2)
+ (magit-clone . 3)
+ (magit-pull . 1)
+ (eshell . 2)
+ (ansi-term . 2)
+ (server-mode . 1)
+ (json-pretty-print . 2)
+)

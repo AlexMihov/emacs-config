@@ -1,0 +1,25 @@
+;;;; Emacs Bookmark Format Version 1 ;;;; -*- coding: utf-8-emacs -*- 
+;;; This format is meant to be slightly human-readable;
+;;; nevertheless, you probably don't want to edit it.
+;;; -*- End Of Bookmark File Format Version Stamp -*-
+(("org-capture-last-stored"
+ (filename . "~/.notes")
+ (front-context-string . "** TODO This is ")
+ (rear-context-string)
+ (position . 9))
+("init.el"
+ (filename . "~/.emacs.d/init.el")
+ (front-context-string . "\n    (package-in")
+ (rear-context-string . "efresh-contents)")
+ (position . 444))
+("notes.org"
+ (filename . "~/Documents/notes/notes.org")
+ (front-context-string . "\nLukas, Gabriel,")
+ (rear-context-string . ":38\n      :END:\n")
+ (position . 13519))
+("shortcuts.org"
+ (filename . "~/Documents/emacs/shortcuts.org")
+ (front-context-string . "* ORG MODE\n** Da")
+ (rear-context-string)
+ (position . 1))
+)
