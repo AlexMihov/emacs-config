@@ -45,10 +45,13 @@
 
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+(setq epa-pinentry-mode 'loopback)
+
 
 ;; increase the font globally for bigger resolutions
-(set-face-attribute 'default nil :height 140)
+;(set-face-attribute 'default nil :height 140)
 
+(set-frame-font "Menlo 18")
 (exec-path-from-shell-initialize)
 
 (autoload 'php-mode "php-mode" "Major mode for editing PHP code." t)
@@ -66,6 +69,7 @@
 (add-hook 'org-mode-hook 'which-key-mode)
 (add-hook 'cider-mode-hook 'which-key-mode)
 
+(require 'multiple-cursors)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-s->") 'mc/mark-all-like-this)

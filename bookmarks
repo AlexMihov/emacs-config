@@ -13,7 +13,7 @@
  (rear-context-string . "efresh-contents)")
  (position . 444))
 ("notes.org"
- (filename . "~/Documents/notes/notes.org")
+ (filename . "~/Documents/emacs/notes.org")
  (front-context-string . "\nLukas, Gabriel,")
  (rear-context-string . ":38\n      :END:\n")
  (position . 13519))

@@ -1,18 +1,18 @@
 
 ;; ----- smex-history -----
 (
- json-pretty-print
- server-start
- server-mode
+ x-select-font
+ eval-buffer
  ansi-term
  eshell
- magit-pull
- magit-clone
+ global-linum-mode
+ json-pretty-print
+ server-start
 )
 
 ;; ----- smex-data -----
 (
- (eval-buffer . 5)
+ (eval-buffer . 8)
  (load-theme . 1)
  (customize-themes . 1)
  (customize-create-theme . 1)
@@ -21,8 +21,10 @@
  (server-start . 2)
  (magit-clone . 3)
  (magit-pull . 1)
- (eshell . 2)
- (ansi-term . 2)
+ (eshell . 3)
+ (ansi-term . 3)
  (server-mode . 1)
  (json-pretty-print . 2)
+ (global-linum-mode . 1)
+ (x-select-font . 1)
 )

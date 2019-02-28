@@ -10,9 +10,13 @@
 
 (setq mc/cmds-to-run-once
       '(
+	apropos-command
 	goto-line
 	ido-list-directory
 	ido-switch-buffer
 	mouse-set-region
 	ns-prev-frame
+	projectile-switch-project
+	smex
+	text-scale-decrease
 	))
