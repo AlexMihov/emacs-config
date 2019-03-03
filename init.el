@@ -118,14 +118,23 @@
 (smex-initialize)
 (global-set-key (kbd "M-x") 'smex)
 
-(define-key global-map (kbd "C-1") 'text-scale-increase)
-(define-key global-map (kbd "C-0") 'text-scale-decrease)
+
 
 (defun visual-clean ()
   "Cleanup messy buffers."
   (interactive)
   (visual-line-mode)
   (visual-fill-column-mode))
+
+
+;;;; CUSTOM SHORTCUTS;;;;
+
+(define-key global-map (kbd "C-1") 'text-scale-increase)
+(define-key global-map (kbd "C-0") 'text-scale-decrease)
+
+(define-key global-map (kbd "s-/") 'comment-line)
+
+;;;: END CUSTOM SHORTCUTS;;;;
 
 (put 'upcase-region 'disabled nil)
 (custom-set-variables
