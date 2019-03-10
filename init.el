@@ -16,9 +16,16 @@
 		      doom-modeline
 		      doom-themes
 		      exec-path-from-shell
+		      evil
+                      evil-escape
+                      evil-leader
+                      evil-mc
+                      evil-numbers
+                      evil-surround
 		      flycheck
 		      flycheck-flow
 		      flyspell
+		      js2-mode
 		      magit
 		      markdown-mode
 		      multiple-cursors
@@ -58,6 +65,10 @@
 (add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
 (add-to-list 'auto-mode-alist '("\\.inc$" . php-mode))
 
+
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+
+
 (global-set-key (kbd "C-x g") 'magit-status)
 (setq magit-branch-read-upstream-first 'fallback)
 
@@ -91,6 +102,8 @@
 (doom-modeline-mode 1)
 (winner-mode 1)
 (delete-selection-mode 1)
+(global-prettify-symbols-mode +1)
+
 
 (ac-config-default)
 
@@ -126,6 +139,55 @@
   (visual-line-mode)
   (visual-fill-column-mode))
 
+;;;; EVIL MODE SETTING
+
+(evil-mode t)
+;; Enable "M-x" in evil mode
+
+;(global-set-key (kbd "M-x") 'execute-extended-command)
+
+(global-evil-leader-mode)
+(evil-leader/set-leader ",")
+(evil-leader/set-key
+  "w" 'basic-save-buffer
+  "s" 'flyspell-buffer
+  "b" 'evil-buffer
+  "q" 'evil-quit)
+
+
+(require 'evil-surround)
+(global-evil-surround-mode 1)
+
+(global-evil-mc-mode 1)
+
+
+(global-set-key (kbd "C-=") 'evil-numbers/inc-at-pt)
+(global-set-key (kbd "C--") 'evil-numbers/dec-at-pt)
+(define-key evil-normal-state-map (kbd "C-=") 'evil-numbers/inc-at-pt)
+(define-key evil-normal-state-map (kbd "C--") 'evil-numbers/dec-at-pt)
+
+(define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
+(define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+
+(define-key evil-insert-state-map (kbd "C-v") 'evil-visual-paste)
+
+
+(mapc (lambda (mode)
+        (evil-set-initial-state mode 'emacs)) '(elfeed-show-mode
+                                                elfeed-search-mode
+                                                dired-mode
+                                                image-dired-mode
+                                                image-dired-thumbnail-mode
+                                                eww-mode))
+
+(define-key evil-normal-state-map (kbd "M-.") nil)
+(define-key evil-normal-state-map (kbd "M-,") nil)
+
+(setq-default evil-escape-delay 0.2)
+(setq-default evil-escape-key-sequence "jk")
+(evil-escape-mode)
+;;;; END EVIL MODE SETTINGS
+
 
 ;;;; CUSTOM SHORTCUTS;;;;
 
@@ -145,6 +207,10 @@
  '(custom-safe-themes
    (quote
     ("1817f2521f95cd2ff06084845ee94d1a1c4fd60dd47959574581687f904721fc" "100e7c5956d7bb3fd0eebff57fde6de8f3b9fafa056a2519f169f85199cc1c96" "ba13202a1b1f987600fe2e33df9abcf9c0131d99b16d57dddf65096a292403c4" "d2e9c7e31e574bf38f4b0fb927aaff20c1e5f92f72001102758005e53d77b8c9" "151bde695af0b0e69c3846500f58d9a0ca8cb2d447da68d7fbf4154dcf818ebc" default)))
+ '(eldoc-minor-mode-string " Eldoc-eval")
+ '(js2-highlight-level 3)
+ '(js2-init-hook (quote (ignore)))
+ '(org-agenda-files nil)
  '(package-selected-packages
    (quote
     (yaml-mode csv-mode smex visual-fill-column pdf-tools multiple-cursors auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline projectile ranger dashboard markdown-mode flyspell-correct flycheck-flow flycheck exec-path-from-shell which-key magit restclient))))
@@ -153,7 +219,13 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(font-lock-string-face ((t (:foreground "#F1C410"))))
+ '(font-lock-variable-name-face ((t (:foreground "#FF1FEE"))))
+ '(js2-function-call ((t (:foreground "#0CFF31"))))
+ '(js2-function-param ((t (:foreground "#E67E24"))))
+ '(js2-object-property ((t (:foreground "#06CBFF"))))
+ '(js2-private-function-call ((t (:foreground "goldenrod"))))
+ '(js2-private-member ((t (:foreground "ff0000")))))
 (put 'erase-buffer 'disabled nil)
 
 ;;; init.el ends here
