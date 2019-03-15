@@ -5,3 +5,12 @@ url/
 eshell/
 ido.last*
 .emacs.desktop*
+.mc-lists.el
+ac-comphist.dat
+bookmarks
+projectile-bookmarks.eld
+projectile.cache
+smex-items
+tramp
+elpa/
+melpa/

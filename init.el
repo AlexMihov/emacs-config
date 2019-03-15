@@ -25,6 +25,7 @@
 		      flycheck
 		      flycheck-flow
 		      flyspell
+		      git-gutter
 		      js2-mode
 		      magit
 		      markdown-mode
@@ -33,6 +34,7 @@
 		      projectile
 		      ranger
 		      restclient
+		      rainbow-delimiters
 		      smex
 		      visual-fill-column
 		      which-key))
@@ -67,6 +69,8 @@
 
 
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
 
 
 (global-set-key (kbd "C-x g") 'magit-status)
@@ -103,7 +107,10 @@
 (winner-mode 1)
 (delete-selection-mode 1)
 (global-prettify-symbols-mode +1)
-
+(global-display-line-numbers-mode 1)
+(global-git-gutter-mode +1)
+;(editorconfig-mode 1)
+(show-paren-mode 1)
 
 (ac-config-default)
 
@@ -198,6 +205,96 @@
 
 ;;;: END CUSTOM SHORTCUTS;;;;
 
+
+
+;;; PRETTIER
+
+(defun autoformat ()
+  "Automatically format current buffer."
+  (interactive)
+  (let ((eslint-path (concat (projectile-project-root)
+                             ".eslintrc.json")))
+    (autoformat-with
+     (cond ((derived-mode-p 'web-mode) 'autoformat-html-command)
+           ((derived-mode-p 'css-mode) 'autoformat-css-command)
+           ((derived-mode-p 'json-mode) 'autoformat-json-command)
+           ((derived-mode-p 'sass-mode) 'autoformat-sass-command)
+           ((derived-mode-p 'yaml-mode) 'autoformat-yaml-command)
+           ;; JS projects with eslint config
+           ((and (file-exists-p eslint-path)
+                 (derived-mode-p 'js2-mode))
+            'autoformat-prettier-eslint-command)
+           ((derived-mode-p 'js2-mode) 'autoformat-javascript-command)))))
+
+(defun autoformat-with (strategy)
+  "Automatically format current buffer using STRATEGY."
+  (let ((p (point))
+        (s (window-start)))
+    ;; Remember the current position
+    (save-mark-and-excursion
+      ;; Call prettier-eslint binary with the contents of the current
+      ;; buffer
+      (shell-command-on-region
+       (point-min) (point-max)
+       (funcall strategy)
+       ;; Write into a temporary buffer
+       (get-buffer-create "*Temp prettier buffer*")
+       ;; Replace the current buffer with the output of
+       ;; prettier-eslint
+       t))
+    ;; Return to the previous point and scrolling position (the point
+    ;; was lost, because the whole buffer got replaced.
+    (set-window-start (selected-window) s)
+    (goto-char p)))
+
+(defun autoformat-javascript-command ()
+  "CLI tool to format Javascript."
+  "prettier --stdin --parser babel")
+
+(defun autoformat-html-command ()
+  "CLI tool to format HTML."
+  "prettier --stdin --parser html")
+
+(defun autoformat-css-command ()
+  "CLI tool to format CSS."
+  "prettier --stdin --parser css")
+
+(defun autoformat-sass-command ()
+  "CLI tool to format SASS."
+  "prettier --stdin --parser sass")
+
+(defun autoformat-json-command ()
+  "CLI tool to format JSON."
+  "prettier --stdin --parser json")
+
+(defun autoformat-yaml-command ()
+  "CLI tool to format YAML."
+  "prettier --stdin --parser yaml")
+
+(defun autoformat-prettier-eslint-command ()
+  "CLI tool to format Javascript with .eslintrc.json configuration."
+  (concat "prettier-eslint --eslint-config-path "
+          ;; Hand over the path of the current projec
+          (concat
+           (projectile-project-root)
+           ".eslintrc.json")
+          " --parser babel --stdin"))
+
+
+(setq ok-autoformat-modes (list 'web-mode
+                'css-mode
+                'json-mode
+                'sass-mode
+                'yaml-mode
+                'js2-mode))
+
+(dolist (mode ok-autoformat-modes)
+  (evil-leader/set-key-for-mode mode "f" 'autoformat))
+
+;;; END PRETRIER
+
+
+
 (put 'upcase-region 'disabled nil)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -208,12 +305,15 @@
    (quote
     ("1817f2521f95cd2ff06084845ee94d1a1c4fd60dd47959574581687f904721fc" "100e7c5956d7bb3fd0eebff57fde6de8f3b9fafa056a2519f169f85199cc1c96" "ba13202a1b1f987600fe2e33df9abcf9c0131d99b16d57dddf65096a292403c4" "d2e9c7e31e574bf38f4b0fb927aaff20c1e5f92f72001102758005e53d77b8c9" "151bde695af0b0e69c3846500f58d9a0ca8cb2d447da68d7fbf4154dcf818ebc" default)))
  '(eldoc-minor-mode-string " Eldoc-eval")
+ '(global-display-line-numbers-mode t)
+ '(global-linum-mode nil)
+ '(global-prettify-symbols-mode t)
  '(js2-highlight-level 3)
  '(js2-init-hook (quote (ignore)))
  '(org-agenda-files nil)
  '(package-selected-packages
    (quote
-    (yaml-mode csv-mode smex visual-fill-column pdf-tools multiple-cursors auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline projectile ranger dashboard markdown-mode flyspell-correct flycheck-flow flycheck exec-path-from-shell which-key magit restclient))))
+    (git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape evil rainbow-delimiters yaml-mode csv-mode smex visual-fill-column pdf-tools multiple-cursors auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline projectile ranger dashboard markdown-mode flyspell-correct flycheck-flow flycheck exec-path-from-shell which-key magit restclient))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
