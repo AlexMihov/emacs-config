@@ -1,57 +1,65 @@
 (require 'package)
 
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-                         ("marmalade" . "https://marmalade-repo.org/packages/")
-                         ("melpa" . "https://melpa.org/packages/")))
+       ("marmalade" . "https://marmalade-repo.org/packages/")
+       ("melpa" . "https://melpa.org/packages/")))
 (defvar my-packages '(
-		      ac-cider
-		      ac-js2
-		      all-the-icons
-		      auto-complete
-		      cider
-		      clj-refactor
-		      clojure-mode
-		      csv-mode
-		      dashboard
-		      doom-modeline
-		      doom-themes
-		      evil
-		      exec-path-from-shell
-		      flycheck
-		      flycheck-flow
-		      flyspell
-		      js2-mode
-		      magit
-		      markdown-mode
-		      multiple-cursors
-		      pdf-tools
-		      projectile
-		      rainbow-delimiters
-		      ranger
-		      restclient
-		      smex
-		      visual-fill-column
-		      which-key
-		      wttrin
-                      evil-escape
-                      evil-leader
-                      evil-mc
-                      evil-numbers
-                      evil-surround
-		      ))
+          ac-js2
+          ag
+          all-the-icons
+          auto-complete
+          cider
+          clj-refactor
+          clojure-mode
+          csv-mode
+          dumb-jump
+          dashboard
+          doom-modeline
+          doom-themes
+          tern
+          tern-auto-complete
+          evil
+          evil-escape
+          evil-leader
+          evil-mc
+          evil-numbers
+          evil-surround
+          exec-path-from-shell
+          flycheck
+          flycheck-flow
+          flyspell
+          ido-vertical-mode
+          js2-mode
+          magit
+          markdown-mode
+          multiple-cursors
+          pdf-tools
+          projectile
+          rainbow-delimiters
+          ranger
+          restclient
+          smex
+          visual-fill-column
+          which-key
+          wttrin
+          ac-cider
+          ))
 (package-initialize)
 
 (dolist (p my-packages)
   (unless (package-installed-p p)
     (package-refresh-contents)
-    
-    
+
+
     (package-install p))
   (add-to-list 'package-selected-packages p))
 
 (ido-mode t)
 (ido-everywhere t)
 (setq ido-enable-flex-matching t)
+(setq ido-vertical-show-count t)
+(ido-vertical-mode 1)
+(setq ido-vertical-define-keys 'C-n-C-p-up-and-down)
 
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
@@ -60,6 +68,8 @@
 (setq sentence-end-double-space nil)
 ;; increase the font globally for bigger resolutions
 ;(set-face-attribute 'default nil :height 140)
+
+(exec-path-from-shell-initialize)
 
 (set-frame-font "Menlo 18")
 (exec-path-from-shell-initialize)
@@ -75,12 +85,16 @@
 
 
 (global-set-key (kbd "C-x g") 'magit-status)
+(global-set-key [f8] 'neotree-toggle)
+(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+
+
 (setq magit-branch-read-upstream-first 'fallback)
 
 (setq org-todo-keywords
-          '((sequence "TODO" "|" "WORKING" "|" "DONE")
-            (sequence "PROJECT" "AGENDA" "|" "MINUTES")
-            (sequence "WAITING" "|" "PROGRESS")))
+    '((sequence "TODO" "|" "WORKING" "|" "DONE")
+      (sequence "PROJECT" "AGENDA" "|" "MINUTES")
+      (sequence "WAITING" "|" "PROGRESS")))
 
 (add-hook 'org-mode-hook 'which-key-mode)
 (add-hook 'cider-mode-hook 'which-key-mode)
@@ -112,8 +126,43 @@
 (global-git-gutter-mode +1)
 ;(editorconfig-mode 1)
 (show-paren-mode 1)
+;;(hs-minor-mode 1)
+(dumb-jump-mode)
+
+(add-hook 'c-mode-common-hook   'hs-minor-mode)
+(add-hook 'emacs-lisp-mode-hook 'hs-minor-mode)
+(add-hook 'java-mode-hook       'hs-minor-mode)
+(add-hook 'lisp-mode-hook       'hs-minor-mode)
+(add-hook 'perl-mode-hook       'hs-minor-mode)
+(add-hook 'sh-mode-hook         'hs-minor-mode)
+(add-hook 'js2-mode 'hs-minor-mode)
+
 
 (ac-config-default)
+
+(setq-default tab-width 2)
+
+(setq-default tab-width 2 indent-tabs-mode nil)
+
+(setq-default indent-tabs-mode nil)
+
+(setq js-indent-level 2)
+
+(setq coffee-tab-width 2)
+
+(setq python-indent 2)
+
+(setq css-indent-offset 2)
+
+(setq js2-mode-show-parse-errors nil)
+(setq js2-mode-show-parse-warnings nil)
+
+(add-hook 'sh-mode-hook
+    (lambda ()
+      (setq sh-basic-offset 2
+      sh-indentation 2)))
+
+(setq web-mode-markup-indent-offset 2)
 
 (dashboard-setup-startup-hook)
 (add-hook 'after-init-hook #'global-flycheck-mode)
@@ -127,7 +176,7 @@
 
 ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
 ;; may have their own settings.
-					;
+
 (load-theme 'doom-peacock t)
 
 (setq wttrin-default-cities '("Zurich"))
@@ -151,6 +200,14 @@
   (interactive)
   (visual-line-mode)
   (visual-fill-column-mode))
+
+
+(add-hook 'js-mode-hook (lambda () (tern-mode t)))
+(eval-after-load 'tern
+   '(progn
+      (require 'tern-auto-complete)
+      (tern-ac-setup)))
+
 
 ;;;; EVIL MODE SETTING
 
@@ -186,12 +243,13 @@
 
 
 (mapc (lambda (mode)
-        (evil-set-initial-state mode 'emacs)) '(elfeed-show-mode
-                                                elfeed-search-mode
-                                                dired-mode
-                                                image-dired-mode
-                                                image-dired-thumbnail-mode
-                                                eww-mode))
+  (evil-set-initial-state mode 'emacs)) '(elfeed-show-mode
+            elfeed-search-mode
+            dired-mode
+            image-dired-mode
+            image-dired-thumbnail-mode
+            Stacktrace
+            eww-mode))
 
 (define-key evil-normal-state-map (kbd "M-.") nil)
 (define-key evil-normal-state-map (kbd "M-,") nil)
@@ -212,6 +270,9 @@
 ;;;: END CUSTOM SHORTCUTS;;;;
 
 
+;; General Settings
+(setq gc-cons-threshold 20000000)
+(setq make-backup-files nil)
 
 ;;; PRETTIER
 
@@ -219,23 +280,23 @@
   "Automatically format current buffer."
   (interactive)
   (let ((eslint-path (concat (projectile-project-root)
-                             ".eslintrc.json")))
+           ".eslintrc.json")))
     (autoformat-with
      (cond ((derived-mode-p 'web-mode) 'autoformat-html-command)
-           ((derived-mode-p 'css-mode) 'autoformat-css-command)
-           ((derived-mode-p 'json-mode) 'autoformat-json-command)
-           ((derived-mode-p 'sass-mode) 'autoformat-sass-command)
-           ((derived-mode-p 'yaml-mode) 'autoformat-yaml-command)
-           ;; JS projects with eslint config
-           ((and (file-exists-p eslint-path)
-                 (derived-mode-p 'js2-mode))
-            'autoformat-prettier-eslint-command)
-           ((derived-mode-p 'js2-mode) 'autoformat-javascript-command)))))
+     ((derived-mode-p 'css-mode) 'autoformat-css-command)
+     ((derived-mode-p 'json-mode) 'autoformat-json-command)
+     ((derived-mode-p 'sass-mode) 'autoformat-sass-command)
+     ((derived-mode-p 'yaml-mode) 'autoformat-yaml-command)
+     ;; JS projects with eslint config
+     ((and (file-exists-p eslint-path)
+     (derived-mode-p 'js2-mode))
+      'autoformat-prettier-eslint-command)
+     ((derived-mode-p 'js2-mode) 'autoformat-javascript-command)))))
 
 (defun autoformat-with (strategy)
   "Automatically format current buffer using STRATEGY."
   (let ((p (point))
-        (s (window-start)))
+  (s (window-start)))
     ;; Remember the current position
     (save-mark-and-excursion
       ;; Call prettier-eslint binary with the contents of the current
@@ -280,19 +341,19 @@
 (defun autoformat-prettier-eslint-command ()
   "CLI tool to format Javascript with .eslintrc.json configuration."
   (concat "prettier-eslint --eslint-config-path "
-          ;; Hand over the path of the current projec
-          (concat
-           (projectile-project-root)
-           ".eslintrc.json")
-          " --parser babel --stdin"))
+    ;; Hand over the path of the current projec
+    (concat
+     (projectile-project-root)
+     ".eslintrc.json")
+    " --parser babel --stdin"))
 
 
 (setq ok-autoformat-modes (list 'web-mode
-                'css-mode
-                'json-mode
-                'sass-mode
-                'yaml-mode
-                'js2-mode))
+    'css-mode
+    'json-mode
+    'sass-mode
+    'yaml-mode
+    'js2-mode))
 
 (dolist (mode ok-autoformat-modes)
   (evil-leader/set-key-for-mode mode "f" 'autoformat))
@@ -392,7 +453,7 @@
  '(org-agenda-files nil)
  '(package-selected-packages
    (quote
-    (wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape evil rainbow-delimiters yaml-mode csv-mode smex visual-fill-column pdf-tools multiple-cursors auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline projectile ranger dashboard markdown-mode flyspell-correct flycheck-flow flycheck exec-path-from-shell which-key magit restclient))))
+    (tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix editorconfig wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape evil rainbow-delimiters yaml-mode csv-mode smex visual-fill-column pdf-tools multiple-cursors auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline projectile ranger dashboard markdown-mode flyspell-correct flycheck-flow flycheck exec-path-from-shell which-key magit restclient))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
