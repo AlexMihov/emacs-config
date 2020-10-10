@@ -2,7 +2,7 @@
 
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
        ("marmalade" . "https://marmalade-repo.org/packages/")
-       ("melpa" . "https://melpa.org/packages/")))
+       ("melpa" . "http://melpa.org/packages/")))
 (defvar my-packages '(
           ac-js2
           ag
@@ -28,17 +28,28 @@
           flycheck
           flycheck-flow
           flyspell
+          highlight-indentation
+          idle-highlight
           ido-vertical-mode
           js2-mode
+          json-mode
+          lsp-mode
           magit
           markdown-mode
           multiple-cursors
           pdf-tools
           projectile
           rainbow-delimiters
+          rainbow-mode
           ranger
           restclient
+          robe
+          rubocop
+          rvm
+          sass-mode
           smex
+          terraform-mode
+          tide
           visual-fill-column
           which-key
           wttrin
@@ -91,6 +102,8 @@
 
 (setq magit-branch-read-upstream-first 'fallback)
 
+;; GTD Setup and Org mode tweaks
+
 (setq org-todo-keywords
     '((sequence "TODO" "|" "WORKING" "|" "DONE")
       (sequence "PROJECT" "AGENDA" "|" "MINUTES")
@@ -98,6 +111,31 @@
 
 (add-hook 'org-mode-hook 'which-key-mode)
 (add-hook 'cider-mode-hook 'which-key-mode)
+
+
+(defun gtd ()
+  "Open main GTD file"
+  (interactive)
+  (find-file "/Users/alex/Documents/GTD/things.org")
+  (shrink-window-if-larger-than-buffer)
+  (other-window 1))
+
+(define-key global-map "\C-cc" 'org-capture)
+
+(setq org-capture-templates
+      '(("t" "Todo" entry (file+headline "~/Documents/GTD/INBOX.org" "Tasks")
+         "* TODO %?\n  %i\n  %a")
+         ("c" "Chores" entry (file+headline "~/Documents/GTD/things.org" "Chore")
+         "* TODO %?\n  %i\n  %a")
+        ))
+
+(setq org-agenda-files (list "~/Documents/GTD/things.org"
+                             ))
+
+(define-key global-map "\C-ca" 'org-agenda)
+
+
+
 
 (require 'multiple-cursors)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
@@ -114,6 +152,8 @@
 
 (global-set-key (kbd "C-c d") 'dired-jump)
 
+(global-set-key "\C-x2" (lambda () (interactive)(split-window-vertically) (other-window 1)))
+(global-set-key "\C-x3" (lambda () (interactive)(split-window-horizontally) (other-window 1)))
 
 (menu-bar-mode -1)
 (toggle-scroll-bar -1)
@@ -124,10 +164,10 @@
 (global-prettify-symbols-mode +1)
 (global-display-line-numbers-mode 1)
 (global-git-gutter-mode +1)
-;(editorconfig-mode 1)
 (show-paren-mode 1)
 ;;(hs-minor-mode 1)
 (dumb-jump-mode)
+(global-auto-revert-mode)
 
 (add-hook 'c-mode-common-hook   'hs-minor-mode)
 (add-hook 'emacs-lisp-mode-hook 'hs-minor-mode)
@@ -137,12 +177,21 @@
 (add-hook 'sh-mode-hook         'hs-minor-mode)
 (add-hook 'js2-mode 'hs-minor-mode)
 
+(require 'lsp-mode)
+
+(add-hook 'typescript-mode-hook #'lsp)
+(add-hook 'js2-mode #'lsp)
+
 
 (ac-config-default)
+
+(with-eval-after-load 'evil-maps (define-key evil-motion-state-map [down-mouse-1] nil))
 
 (setq-default tab-width 2)
 
 (setq-default tab-width 2 indent-tabs-mode nil)
+
+(setq-default typescript-indent-level 4)
 
 (setq-default indent-tabs-mode nil)
 
@@ -186,7 +235,7 @@
 
 ;;(load-theme 'webstorm t)
 
-(desktop-save-mode 1)
+;; (desktop-save-mode 1)
 
 (setq org-agenda-files (list "~/Documents/notes/notes.org"))
 
@@ -208,8 +257,46 @@
       (require 'tern-auto-complete)
       (tern-ac-setup)))
 
+(require 'js2-mode)
+(define-key js2-mode-map (kbd "C-c C-r") 'tide-rename-symbol)
+(define-key js2-mode-map (kbd "C-c C-d") 'tide-documentation-at-point)
 
-;;;; EVIL MODE SETTING
+(defun setup-tide-mode ()
+  (interactive)
+  ;; For bigger JS projects and intense tasks like =tide=references=
+  ;; the default of 2s will time out
+  (setq tide-sync-request-timeout 10)
+  (tide-setup)
+  ;; Increase sync request timeout for bigger projects
+  (flycheck-mode +1)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (eldoc-mode +1)
+  (tide-hl-identifier-mode +1))
+
+(add-hook 'js2-mode-hook #'setup-tide-mode)
+(add-hook 'typescript-mode-hook #'setup-tide-mode)
+
+;; (flycheck-add-mode 'typescript-tslint 'ng2-ts-mode)
+
+(highlight-indentation-mode 1)
+(set-face-background 'highlight-indentation-face "#393939")
+(set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
+
+(setq-default flycheck-temp-prefix ".")
+(setq flycheck-javascript-eslint-executable "eslint-project-relative")
+
+(add-hook 'js2-mode-hook
+          (lambda () (setq flycheck-javascript-eslint-executable (expand-file-name "node_modules/.bin/eslint" (locate-dominating-file (buffer-file-name) "package.json")))))
+(setq js2-mode-show-strict-warnings nil)
+(setq js2-mode-show-parse-warnings nil)
+
+;; automatically show colors as backgrounds to hex
+(add-hook 'prog-mode-hook 'rainbow-mode)
+
+;; highlight words
+(add-hook 'prog-mode-hook (lambda () (idle-highlight-mode t)))
+
+;; EVIL MODE SETTING
 
 (evil-mode t)
 ;; Enable "M-x" in evil mode
@@ -224,6 +311,7 @@
   "b" 'evil-buffer
   "q" 'evil-quit)
 
+(setq evil-want-fine-undo 'fine)
 
 (require 'evil-surround)
 (global-evil-surround-mode 1)
@@ -246,6 +334,7 @@
   (evil-set-initial-state mode 'emacs)) '(elfeed-show-mode
             elfeed-search-mode
             dired-mode
+            tide-references-mode
             image-dired-mode
             image-dired-thumbnail-mode
             Stacktrace
@@ -273,6 +362,10 @@
 ;; General Settings
 (setq gc-cons-threshold 20000000)
 (setq make-backup-files nil)
+(setq backup-directory-alist
+    `((".*" . ,(concat user-emacs-directory "backups"))))
+(setq auto-save-file-name-transforms
+    `((".*" ,(concat user-emacs-directory "backups"))))
 
 ;;; PRETTIER
 
@@ -359,6 +452,38 @@
   (evil-leader/set-key-for-mode mode "f" 'autoformat))
 
 ;;; END PRETRIER
+
+;;; Ruby
+(setq ruby-indent-level 2)
+(add-to-list 'auto-mode-alist '("\\.scss?\\'" . scss-mode))
+;; Don't compile scss on save
+(setq scss-compile-at-save nil)
+
+(add-to-list 'auto-mode-alist '("\\.rb?\\'" . enh-ruby-mode))
+(add-to-list 'auto-mode-alist '("\\.rake?\\'" . enh-ruby-mode))
+
+
+(add-hook 'enh-ruby-mode-hook 'robe-mode)
+(add-hook 'robe-mode-hook 'ac-robe-setup)
+(add-to-list 'auto-mode-alist '("\\.erb?\\'" . robe-mode))
+
+(add-hook 'enh-ruby-mode-hook 'auto-complete-mode)
+(require 'rvm)
+(rvm-use-default) ;; use rvm's default ruby for the current Emacs session
+
+(add-to-list 'hs-special-modes-alist
+             '(ruby-mode
+               "\\(class\\|def\\|do\\|if\\)" "\\(end\\)" "#"
+               (lambda (arg) (ruby-end-of-block)) nil))
+
+
+;;;
+
+(add-hook 'before-save-hook '(lambda()
+                              (when (not (or (derived-mode-p 'markdown-mode)))
+                                (delete-trailing-whitespace))))
+
+(add-hook 'prog-mode-hook #'hs-minor-mode)
 
 ;;; MU4E
 (let ((default-directory "/usr/local/share/emacs/site-lisp/"))
@@ -453,13 +578,14 @@
  '(org-agenda-files nil)
  '(package-selected-packages
    (quote
-    (tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix editorconfig wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape evil rainbow-delimiters yaml-mode csv-mode smex visual-fill-column pdf-tools multiple-cursors auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline projectile ranger dashboard markdown-mode flyspell-correct flycheck-flow flycheck exec-path-from-shell which-key magit restclient))))
+    (dotenv-mode dockerfile-mode rake rvm ruby-tools rubocop idle-highlight-mode idle-highlight adaptive-wrap highlight-indentation rainbow-mode enh-ruby-mode sass-mode robe treemacs-projectile treemacs js3-mode tide ng2-mode yasnippet-bundle json-mode web-mode tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape evil rainbow-delimiters yaml-mode csv-mode smex visual-fill-column pdf-tools multiple-cursors auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline projectile ranger dashboard markdown-mode flyspell-correct flycheck-flow flycheck exec-path-from-shell which-key magit restclient))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(font-lock-string-face ((t (:foreground "#F1C410"))))
+ '(font-lock-type-face ((t (:foreground "#4a9eee"))))
  '(font-lock-variable-name-face ((t (:foreground "#FF1FEE"))))
  '(js2-function-call ((t (:foreground "#0CFF31"))))
  '(js2-function-param ((t (:foreground "#E67E24"))))
@@ -469,3 +595,4 @@
 (put 'erase-buffer 'disabled nil)
 
 ;;; init.el ends here
+(put 'narrow-to-region 'disabled nil)
