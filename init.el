@@ -1,23 +1,28 @@
 (require 'package)
 
-(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-       ("marmalade" . "https://marmalade-repo.org/packages/")
-       ("melpa" . "http://melpa.org/packages/")))
+;; (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+;;                          ("marmalade" . "http://marmalade-repo.org/packages/")
+;;                          ("melpa" . "http://melpa.org/packages/")))
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")))
 (defvar my-packages '(
-          ac-js2
+          ;; ac-js2
           ag
           all-the-icons
-          auto-complete
+          ;; auto-complete
           cider
           clj-refactor
           clojure-mode
           csv-mode
+          centaur-tabs
           dumb-jump
           dashboard
           doom-modeline
           doom-themes
           tern
           tern-auto-complete
+          emmet-mode
           evil
           evil-escape
           evil-leader
@@ -28,6 +33,7 @@
           flycheck
           flycheck-flow
           flyspell
+          forge
           highlight-indentation
           idle-highlight
           ido-vertical-mode
@@ -36,6 +42,7 @@
           lsp-mode
           magit
           markdown-mode
+          move-text
           multiple-cursors
           pdf-tools
           projectile
@@ -45,8 +52,10 @@
           restclient
           robe
           rubocop
+          ruby-electric
           rvm
           sass-mode
+          smart-tab
           smex
           terraform-mode
           tide
@@ -60,17 +69,84 @@
 (dolist (p my-packages)
   (unless (package-installed-p p)
     (package-refresh-contents)
-
-
     (package-install p))
   (add-to-list 'package-selected-packages p))
 
-(ido-mode t)
-(ido-everywhere t)
-(setq ido-enable-flex-matching t)
-(setq ido-vertical-show-count t)
-(ido-vertical-mode 1)
-(setq ido-vertical-define-keys 'C-n-C-p-up-and-down)
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
+(use-package org-roam
+  :ensure t
+  :init
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-directory (file-truename "/Users/alex/Google Drive/_GTD/OrgRoam/"))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ;; Dailies
+         ;;("C-c n j" . org-roam-dailies-capture-today)
+         )
+  :config
+  (org-roam-setup)
+  ;; If using org-roam-protocol
+  (require 'org-roam-protocol))
+
+;;; NEW TESTS
+(use-package ivy
+  :diminish
+  :bind (("s-f" . swiper)
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1))
+
+
+(use-package counsel
+  :bind (("C-M-j" . 'counsel-switch-buffer)
+           ("M-x" . counsel-M-x)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history))
+  :custom
+  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+  :config
+  (counsel-mode 1))
+;; (setq projectile-completion-system 'ivy)
+
+(use-package counsel-projectile
+  :after projectile
+  :config (counsel-projectile-mode))
+
+(use-package ivy-rich
+  :after ivy
+  :init
+  (ivy-rich-mode 1))
+
+
+;;; END NEW TESTS
+
+;; Dashboard setup
+;; (setq dashboard-startup-banner "/Users/alex/.emacs./ardeo-logo-red.svg")
+;; End Dashboard setup
+;; (ido-mode t)
+;; (ido-everywhere t)
+;; (setq ido-enable-flex-matching t)
+;; (setq ido-vertical-show-count t)
+;; (ido-vertical-mode 1)
+;; (setq ido-vertical-define-keys 'C-n-C-p-up-and-down)
 
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
@@ -93,21 +169,60 @@
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
-
+(setq dired-dwim-target t)
 
 (global-set-key (kbd "C-x g") 'magit-status)
-(global-set-key [f8] 'neotree-toggle)
-(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 
+(with-eval-after-load 'magit
+  (require 'forge))
+
+;; (setq auth-sources '("~/.authinfo"))
+
+
+(with-eval-after-load 'forge
+  (add-to-list 'forge-alist
+               '("gitlab.200ok.ch"
+                 "gitlab.200ok.ch/api/v4"
+                 "gitlab.200ok.ch"
+                 forge-gitlab-repository))
+  (setq auth-sources '("~/.authinfo")))
+
+
+
+
+(global-set-key [f8] 'neotree-toggle)
+;; (define-key treemacs-mode-map [mouse-1] #'treemacs-single-click-expand-action)
+(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+;; (setq projectile-switch-project-action 'neotree-projectile-action)
+
+(add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 
 (setq magit-branch-read-upstream-first 'fallback)
+
+(savehist-mode 1)
 
 ;; GTD Setup and Org mode tweaks
 
 (setq org-todo-keywords
-    '((sequence "TODO" "|" "WORKING" "|" "DONE")
+    '((sequence "TODO" "WORKING" "|" "DONE")
       (sequence "PROJECT" "AGENDA" "|" "MINUTES")
       (sequence "WAITING" "|" "PROGRESS")))
+
+(setq org-fontify-done-headline t)
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(font-lock-type-face ((t (:foreground "SteelBlue1"))))
+ '(font-lock-variable-name-face ((t (:foreground "MediumOrchid1"))))
+ '(js2-private-function-call ((t (:foreground "goldenrod"))))
+ '(js2-private-member ((t (:foreground "ff0000"))))
+ '(org-done ((t (:foreground "#546E7A" :weight bold)))))
+(setq org-todo-keyword-faces
+      '(("WORKING" . "#F57F17")))
+;(add-to-list 'org-tag-faces '(".*" . (:foreground "cyan")))
+
 
 (add-hook 'org-mode-hook 'which-key-mode)
 (add-hook 'cider-mode-hook 'which-key-mode)
@@ -134,7 +249,7 @@
 
 (define-key global-map "\C-ca" 'org-agenda)
 
-
+(move-text-default-bindings)
 
 
 (require 'multiple-cursors)
@@ -147,7 +262,7 @@
 
 (projectile-mode +1)
 
-(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+;; (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 
 (global-set-key (kbd "C-c d") 'dired-jump)
@@ -183,7 +298,7 @@
 (add-hook 'js2-mode #'lsp)
 
 
-(ac-config-default)
+;; (ac-config-default)
 
 (with-eval-after-load 'evil-maps (define-key evil-motion-state-map [down-mouse-1] nil))
 
@@ -212,6 +327,9 @@
       sh-indentation 2)))
 
 (setq web-mode-markup-indent-offset 2)
+(setq web-mode-enable-css-colorization t)
+;; (define-key web-mode-map (kbd "C-tab") 'emmet-expand-line)
+;;(define-key emmet-mode-keymap [tab] 'emmet-expand-line)
 
 (dashboard-setup-startup-hook)
 (add-hook 'after-init-hook #'global-flycheck-mode)
@@ -236,6 +354,8 @@
 ;;(load-theme 'webstorm t)
 
 ;; (desktop-save-mode 1)
+
+(require 'org-tempo)
 
 (setq org-agenda-files (list "~/Documents/notes/notes.org"))
 
@@ -332,13 +452,14 @@
 
 (mapc (lambda (mode)
   (evil-set-initial-state mode 'emacs)) '(elfeed-show-mode
-            elfeed-search-mode
-            dired-mode
-            tide-references-mode
-            image-dired-mode
-            image-dired-thumbnail-mode
-            Stacktrace
-            eww-mode))
+                                          elfeed-search-mode
+                                          dired-mode
+                                          tide-references-mode
+                                          image-dired-mode
+                                          image-dired-thumbnail-mode
+                                          Stacktrace
+                                          eww-mode
+                                          magit-popup-mode))
 
 (define-key evil-normal-state-map (kbd "M-.") nil)
 (define-key evil-normal-state-map (kbd "M-,") nil)
@@ -379,6 +500,7 @@
      ((derived-mode-p 'css-mode) 'autoformat-css-command)
      ((derived-mode-p 'json-mode) 'autoformat-json-command)
      ((derived-mode-p 'sass-mode) 'autoformat-sass-command)
+     ((derived-mode-p 'sacs-mode) 'autoformat-scss-command)
      ((derived-mode-p 'yaml-mode) 'autoformat-yaml-command)
      ;; JS projects with eslint config
      ((and (file-exists-p eslint-path)
@@ -409,27 +531,31 @@
 
 (defun autoformat-javascript-command ()
   "CLI tool to format Javascript."
-  "prettier --stdin --parser babel")
+  "prettier --parser babel")
 
 (defun autoformat-html-command ()
   "CLI tool to format HTML."
-  "prettier --stdin --parser html")
+  "prettier --parser html")
 
 (defun autoformat-css-command ()
   "CLI tool to format CSS."
-  "prettier --stdin --parser css")
+  "prettier --parser css")
 
 (defun autoformat-sass-command ()
   "CLI tool to format SASS."
-  "prettier --stdin --parser sass")
+  "prettier --parser sass")
+
+(defun autoformat-sass-command ()
+  "CLI tool to format SASS."
+  "prettier --parser scss")
 
 (defun autoformat-json-command ()
   "CLI tool to format JSON."
-  "prettier --stdin --parser json")
+  "prettier --parser json")
 
 (defun autoformat-yaml-command ()
   "CLI tool to format YAML."
-  "prettier --stdin --parser yaml")
+  "prettier --parser yaml")
 
 (defun autoformat-prettier-eslint-command ()
   "CLI tool to format Javascript with .eslintrc.json configuration."
@@ -464,6 +590,7 @@
 
 
 (add-hook 'enh-ruby-mode-hook 'robe-mode)
+(add-hook 'enh-ruby-mode-hook 'ruby-electric-mode)
 (add-hook 'robe-mode-hook 'ac-robe-setup)
 (add-to-list 'auto-mode-alist '("\\.erb?\\'" . robe-mode))
 
@@ -528,7 +655,7 @@
    user-full-name  "Alex Mihov"
    mu4e-compose-signature
     (concat
-      "Alex Mihov\n"
+     "Alex Mihov\n"
       "https://mihov.ch\n"))
 
 ;; sending mail -- replace USERNAME with your gmail username
@@ -536,7 +663,7 @@
 ;; package 'gnutls-bin' in Debian/Ubuntu
 
 (setq auth-sources
-      '((:source "~/.authinfo2.gpg")))
+      '((:source "~/.authinfo2.pg")))
 
 (require 'smtpmail)
 (setq message-send-mail-function 'smtpmail-send-it
@@ -548,6 +675,13 @@
    smtpmail-smtp-server "smtp.gmail.com"
    smtpmail-smtp-service 587)
 
+(add-to-list 'mu4e-view-actions '("View In Browser" . mu4e-action-view-in-browser) t)
+
+;; (setq fancy-splash-image-file "splash.pn")
+(setq fancy-splash-image "~/.emacs.d/ardeo-logo-red.svg")
+
+(set-fontset-font
+ t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)
 
 ;; alternatively, for emacs-24 you can use:
 ;;(setq message-send-mail-function 'smtpmail-send-it
@@ -558,7 +692,46 @@
 
 ;; don't keep message buffers around
 (setq message-kill-buffer-on-exit t)
+(define-key mu4e-headers-mode-map (kbd "C-c c") 'mu4e-org-store-and-capture)
+(define-key mu4e-view-mode-map (kbd "C-c c") 'mu4e-org-store-and-capture)
+
+(setq mu4e-view-show-addresses t)
+(setq mu4e-update-interval (* 10 60))
+(setq mu4e-index-update-in-background t)
 ;;; END MU4E
+
+;;; LSP/Company
+(add-hook 'after-init-hook 'global-company-mode)
+(setq company-selection-wrap-around t)
+(setq company-minimum-prefix-length 0
+      company-idle-delay 0.0)
+(global-set-key (kbd "C-SPC") 'company-complete)
+
+(company-tng-configure-default)
+
+;;; END LSP/Company
+
+(global-smart-tab-mode 1)
+
+;; Tabs
+
+(setq centaur-tabs-set-icons t)
+(setq centaur-tabs-style "bar")
+
+
+
+;; (defun add-emmet-expand-to-smart-tab-completions ()
+;;   ;; Add an entry for current major mode in
+;;   ;; `smart-tab-completion-functions-alist' to use
+;;   ;; `emmet-expand-line'.
+;;   (add-to-list 'smart-tab-completion-functions-alist
+;;                (cons major-mode #'emmet-expand-line)))
+
+;; (require 'emmet-mode)
+;; (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+;; (add-hook 'sgml-mode-hook 'add-emmet-expand-to-smart-tab-completions)
+;; (add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
+;; (add-hook 'css-mode-hook 'add-emmet-expand-to-smart-tab-completions)
 
 (put 'upcase-region 'disabled nil)
 (custom-set-variables
@@ -567,31 +740,19 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   (quote
-    ("1817f2521f95cd2ff06084845ee94d1a1c4fd60dd47959574581687f904721fc" "100e7c5956d7bb3fd0eebff57fde6de8f3b9fafa056a2519f169f85199cc1c96" "ba13202a1b1f987600fe2e33df9abcf9c0131d99b16d57dddf65096a292403c4" "d2e9c7e31e574bf38f4b0fb927aaff20c1e5f92f72001102758005e53d77b8c9" "151bde695af0b0e69c3846500f58d9a0ca8cb2d447da68d7fbf4154dcf818ebc" default)))
+   '("1817f2521f95cd2ff06084845ee94d1a1c4fd60dd47959574581687f904721fc" "100e7c5956d7bb3fd0eebff57fde6de8f3b9fafa056a2519f169f85199cc1c96" "ba13202a1b1f987600fe2e33df9abcf9c0131d99b16d57dddf65096a292403c4" "d2e9c7e31e574bf38f4b0fb927aaff20c1e5f92f72001102758005e53d77b8c9" "151bde695af0b0e69c3846500f58d9a0ca8cb2d447da68d7fbf4154dcf818ebc" default))
  '(eldoc-minor-mode-string " Eldoc-eval")
+ '(flycheck-checker-error-threshold 1000)
  '(global-display-line-numbers-mode t)
  '(global-linum-mode nil)
  '(global-prettify-symbols-mode t)
  '(js2-highlight-level 3)
- '(js2-init-hook (quote (ignore)))
+ '(js2-init-hook '(ignore))
  '(org-agenda-files nil)
  '(package-selected-packages
-   (quote
-    (dotenv-mode dockerfile-mode rake rvm ruby-tools rubocop idle-highlight-mode idle-highlight adaptive-wrap highlight-indentation rainbow-mode enh-ruby-mode sass-mode robe treemacs-projectile treemacs js3-mode tide ng2-mode yasnippet-bundle json-mode web-mode tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape evil rainbow-delimiters yaml-mode csv-mode smex visual-fill-column pdf-tools multiple-cursors auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline projectile ranger dashboard markdown-mode flyspell-correct flycheck-flow flycheck exec-path-from-shell which-key magit restclient))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(font-lock-string-face ((t (:foreground "#F1C410"))))
- '(font-lock-type-face ((t (:foreground "#4a9eee"))))
- '(font-lock-variable-name-face ((t (:foreground "#FF1FEE"))))
- '(js2-function-call ((t (:foreground "#0CFF31"))))
- '(js2-function-param ((t (:foreground "#E67E24"))))
- '(js2-object-property ((t (:foreground "#06CBFF"))))
- '(js2-private-function-call ((t (:foreground "goldenrod"))))
- '(js2-private-member ((t (:foreground "ff0000")))))
+   '(counsel-projectile eterm-256color counsel paradox org-roam use-package move-text handlebars-mode fancy-mode fancy-battery lsp-treemacs lsp-intellij magit-delta mu4e-views ruby-electric ruby-extra-highlight hl-todo imenu-list centaur-tabs zen-mode spotify smooth-scrolling smooth-scroll docker gnu-elpa-keyring-update treemacs-evil apache-mode dired-rainbow company-inf-ruby company-suggest company-restclient smart-tab emmet-mode company-web lsp-ivy impatient-mode php-mode forge terraform-mode twig-mode buffer-move company org-super-agenda vue-mode lorem-ipsum dotenv-mode dockerfile-mode rake rvm ruby-tools idle-highlight-mode idle-highlight adaptive-wrap rainbow-mode enh-ruby-mode sass-mode treemacs-projectile js3-mode ng2-mode yasnippet-bundle json-mode web-mode tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape rainbow-delimiters yaml-mode csv-mode smex pdf-tools auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline ranger dashboard flyspell-correct flycheck-flow exec-path-from-shell restclient))
+ '(paradox-github-token t))
+
 (put 'erase-buffer 'disabled nil)
 
 ;;; init.el ends here
