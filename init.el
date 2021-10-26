@@ -73,70 +73,7 @@
   (add-to-list 'package-selected-packages p))
 
 
-(require 'use-package)
-(setq use-package-always-ensure t)
 
-(use-package org-roam
-  :ensure t
-  :init
-  (setq org-roam-v2-ack t)
-  :custom
-  (org-roam-directory (file-truename "/Users/alex/Google Drive/_GTD/OrgRoam/"))
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n g" . org-roam-graph)
-         ("C-c n i" . org-roam-node-insert)
-         ("C-c n c" . org-roam-capture)
-         ;; Dailies
-         ;;("C-c n j" . org-roam-dailies-capture-today)
-         )
-  :config
-  (org-roam-setup)
-  ;; If using org-roam-protocol
-  (require 'org-roam-protocol))
-
-;;; NEW TESTS
-(use-package ivy
-  :diminish
-  :bind (("s-f" . swiper)
-         :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
-         ("C-l" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  (ivy-mode 1))
-
-
-(use-package counsel
-  :bind (("C-M-j" . 'counsel-switch-buffer)
-           ("M-x" . counsel-M-x)
-         :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history))
-  :custom
-  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
-  :config
-  (counsel-mode 1))
-;; (setq projectile-completion-system 'ivy)
-
-(use-package counsel-projectile
-  :after projectile
-  :config (counsel-projectile-mode))
-
-(use-package ivy-rich
-  :after ivy
-  :init
-  (ivy-rich-mode 1))
-
-
-;;; END NEW TESTS
 
 ;; Dashboard setup
 ;; (setq dashboard-startup-banner "/Users/alex/.emacs./ardeo-logo-red.svg")
@@ -208,17 +145,17 @@
       (sequence "PROJECT" "AGENDA" "|" "MINUTES")
       (sequence "WAITING" "|" "PROGRESS")))
 
+(setq org-adapt-indentation nil)
+
 (setq org-fontify-done-headline t)
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(font-lock-type-face ((t (:foreground "SteelBlue1"))))
- '(font-lock-variable-name-face ((t (:foreground "MediumOrchid1"))))
+ '(hl-todo ((t (:inherit hl-todo :italic t))))
  '(js2-private-function-call ((t (:foreground "goldenrod"))))
- '(js2-private-member ((t (:foreground "ff0000"))))
- '(org-done ((t (:foreground "#546E7A" :weight bold)))))
+ '(js2-private-member ((t (:foreground "ff0000")))))
 (setq org-todo-keyword-faces
       '(("WORKING" . "#F57F17")))
 ;(add-to-list 'org-tag-faces '(".*" . (:foreground "cyan")))
@@ -260,10 +197,10 @@
 (define-key mc/keymap (kbd "<return>") nil)
 
 
-(projectile-mode +1)
+;; (projectile-mode +1)
 
 ;; (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 
 (global-set-key (kbd "C-c d") 'dired-jump)
 
@@ -709,6 +646,10 @@
 
 (company-tng-configure-default)
 
+;; (use-package company-box
+;;   :hook (company-mode . company-box-mode))
+;; (require 'company-lsp)
+;; (push 'company-lsp company-backends)
 ;;; END LSP/Company
 
 (global-smart-tab-mode 1)
@@ -718,6 +659,90 @@
 (setq centaur-tabs-set-icons t)
 (setq centaur-tabs-style "bar")
 
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
+(use-package org-roam
+  :ensure t
+  :init
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-directory (file-truename "/Users/alex/Google Drive/_GTD/OrgRoam/"))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ;; Dailies
+         ;;("C-c n j" . org-roam-dailies-capture-today)
+         )
+  :config
+  (org-roam-setup)
+  ;; If using org-roam-protocol
+  (require 'org-roam-protocol))
+
+;;; NEW TESTS
+(use-package ivy
+  :diminish
+  :bind (("s-f" . swiper)
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1))
+
+
+(use-package counsel
+  :bind (("C-M-j" . 'counsel-switch-buffer)
+           ("M-x" . counsel-M-x)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history))
+  :custom
+  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+  :config
+  (counsel-mode 1))
+;; (setq projectile-completion-system 'ivy)
+
+;; (use-package counsel-projectile
+;;   :after projectile
+;;   :config (counsel-projectile-mode))
+
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :custom ((projectile-completion-system 'ivy))
+  :bind-keymap
+  ("C-c p" . projectile-command-map))
+
+(use-package counsel-projectile
+  :after projectile
+  :config (counsel-projectile-mode))
+
+(use-package ivy-rich
+  :after ivy
+  :init
+  (ivy-rich-mode 1))
+
+(use-package hl-todo
+  :ensure t
+  :custom-face
+  (hl-todo ((t (:inherit hl-todo :italic t))))
+  :hook ((prog-mode . hl-todo-mode)
+         (yaml-mode . hl-todo-mode)))
+
+(use-package omnisharp)
+
+;;; END NEW TESTS
 
 
 ;; (defun add-emmet-expand-to-smart-tab-completions ()
@@ -739,8 +764,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes '(doom-material))
  '(custom-safe-themes
-   '("1817f2521f95cd2ff06084845ee94d1a1c4fd60dd47959574581687f904721fc" "100e7c5956d7bb3fd0eebff57fde6de8f3b9fafa056a2519f169f85199cc1c96" "ba13202a1b1f987600fe2e33df9abcf9c0131d99b16d57dddf65096a292403c4" "d2e9c7e31e574bf38f4b0fb927aaff20c1e5f92f72001102758005e53d77b8c9" "151bde695af0b0e69c3846500f58d9a0ca8cb2d447da68d7fbf4154dcf818ebc" default))
+   '("b186688fbec5e00ee8683b9f2588523abdf2db40562839b2c5458fcfb322c8a4" "6c531d6c3dbc344045af7829a3a20a09929e6c41d7a7278963f7d3215139f6a7" "7eea50883f10e5c6ad6f81e153c640b3a288cd8dc1d26e4696f7d40f754cc703" "1f1b545575c81b967879a5dddc878783e6ebcca764e4916a270f9474215289e5" "a82ab9f1308b4e10684815b08c9cac6b07d5ccb12491f44a942d845b406b0296" "234dbb732ef054b109a9e5ee5b499632c63cc24f7c2383a849815dacc1727cb6" "1d5e33500bc9548f800f9e248b57d1b2a9ecde79cb40c0b1398dec51ee820daf" "97db542a8a1731ef44b60bc97406c1eb7ed4528b0d7296997cbb53969df852d6" "cbdf8c2e1b2b5c15b34ddb5063f1b21514c7169ff20e081d39cf57ffee89bc1e" "6c98bc9f39e8f8fd6da5b9c74a624cbb3782b4be8abae8fd84cbc43053d7c175" "028c226411a386abc7f7a0fba1a2ebfae5fe69e2a816f54898df41a6a3412bb5" "613aedadd3b9e2554f39afe760708fc3285bf594f6447822dd29f947f0775d6c" "f91395598d4cb3e2ae6a2db8527ceb83fed79dbaf007f435de3e91e5bda485fb" "da186cce19b5aed3f6a2316845583dbee76aea9255ea0da857d1c058ff003546" "8d7b028e7b7843ae00498f68fad28f3c6258eda0650fe7e17bfb017d51d0e2a2" "23c806e34594a583ea5bbf5adf9a964afe4f28b4467d28777bcba0d35aa0872e" "266ecb1511fa3513ed7992e6cd461756a895dcc5fef2d378f165fed1c894a78c" "d47f868fd34613bd1fc11721fe055f26fd163426a299d45ce69bef1f109e1e71" "b5803dfb0e4b6b71f309606587dd88651efe0972a5be16ece6a958b197caeed8" "e8df30cd7fb42e56a4efc585540a2e63b0c6eeb9f4dc053373e05d774332fc13" "4b6b6b0a44a40f3586f0f641c25340718c7c626cbf163a78b5a399fbe0226659" "0466adb5554ea3055d0353d363832446cd8be7b799c39839f387abb631ea0995" "7a7b1d475b42c1a0b61f3b1d1225dd249ffa1abb1b7f726aec59ac7ca3bf4dae" "a9a67b318b7417adbedaab02f05fa679973e9718d9d26075c6235b1f0db703c8" "1817f2521f95cd2ff06084845ee94d1a1c4fd60dd47959574581687f904721fc" "100e7c5956d7bb3fd0eebff57fde6de8f3b9fafa056a2519f169f85199cc1c96" "ba13202a1b1f987600fe2e33df9abcf9c0131d99b16d57dddf65096a292403c4" "d2e9c7e31e574bf38f4b0fb927aaff20c1e5f92f72001102758005e53d77b8c9" "151bde695af0b0e69c3846500f58d9a0ca8cb2d447da68d7fbf4154dcf818ebc" default))
  '(eldoc-minor-mode-string " Eldoc-eval")
  '(flycheck-checker-error-threshold 1000)
  '(global-display-line-numbers-mode t)
@@ -748,9 +774,10 @@
  '(global-prettify-symbols-mode t)
  '(js2-highlight-level 3)
  '(js2-init-hook '(ignore))
+ '(org-adapt-indentation nil)
  '(org-agenda-files nil)
  '(package-selected-packages
-   '(counsel-projectile eterm-256color counsel paradox org-roam use-package move-text handlebars-mode fancy-mode fancy-battery lsp-treemacs lsp-intellij magit-delta mu4e-views ruby-electric ruby-extra-highlight hl-todo imenu-list centaur-tabs zen-mode spotify smooth-scrolling smooth-scroll docker gnu-elpa-keyring-update treemacs-evil apache-mode dired-rainbow company-inf-ruby company-suggest company-restclient smart-tab emmet-mode company-web lsp-ivy impatient-mode php-mode forge terraform-mode twig-mode buffer-move company org-super-agenda vue-mode lorem-ipsum dotenv-mode dockerfile-mode rake rvm ruby-tools idle-highlight-mode idle-highlight adaptive-wrap rainbow-mode enh-ruby-mode sass-mode treemacs-projectile js3-mode ng2-mode yasnippet-bundle json-mode web-mode tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape rainbow-delimiters yaml-mode csv-mode smex pdf-tools auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline ranger dashboard flyspell-correct flycheck-flow exec-path-from-shell restclient))
+   '(company-box lsp-ui omnisharp writeroom-mode telega org-bullets counsel-projectile eterm-256color counsel paradox org-roam use-package move-text handlebars-mode fancy-mode fancy-battery lsp-treemacs lsp-intellij magit-delta mu4e-views ruby-electric ruby-extra-highlight hl-todo imenu-list centaur-tabs zen-mode spotify smooth-scrolling smooth-scroll docker gnu-elpa-keyring-update treemacs-evil apache-mode dired-rainbow company-inf-ruby company-suggest company-restclient smart-tab emmet-mode company-web lsp-ivy impatient-mode php-mode forge twig-mode buffer-move company org-super-agenda vue-mode lorem-ipsum dotenv-mode dockerfile-mode rake rvm ruby-tools idle-highlight-mode idle-highlight adaptive-wrap rainbow-mode enh-ruby-mode sass-mode treemacs-projectile js3-mode ng2-mode yasnippet-bundle json-mode tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape rainbow-delimiters csv-mode smex pdf-tools auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline ranger dashboard flyspell-correct flycheck-flow exec-path-from-shell restclient))
  '(paradox-github-token t))
 
 (put 'erase-buffer 'disabled nil)
