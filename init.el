@@ -229,7 +229,7 @@
 (add-hook 'sh-mode-hook         'hs-minor-mode)
 (add-hook 'js2-mode 'hs-minor-mode)
 
-(require 'lsp-mode)
+;; (require 'lsp-mode)
 
 (add-hook 'typescript-mode-hook #'lsp)
 (add-hook 'js2-mode #'lsp)
@@ -282,6 +282,9 @@
 ;; may have their own settings.
 
 (load-theme 'doom-peacock t)
+
+;; change the highlight color
+(set-face-attribute 'region nil :background "#666")
 
 (setq wttrin-default-cities '("Zurich"))
 (setq wttrin-default-accept-language '("Accept-Language" . "en-US"))
@@ -638,13 +641,13 @@
 ;;; END MU4E
 
 ;;; LSP/Company
-(add-hook 'after-init-hook 'global-company-mode)
-(setq company-selection-wrap-around t)
-(setq company-minimum-prefix-length 0
-      company-idle-delay 0.0)
-(global-set-key (kbd "C-SPC") 'company-complete)
+;; (add-hook 'after-init-hook 'global-company-mode)
+;; (setq company-selection-wrap-around t)
+;; (setq company-minimum-prefix-length 0
+      ;; company-idle-delay 0.0)
+;; (global-set-key (kbd "C-SPC") 'company-complete)
 
-(company-tng-configure-default)
+;; (company-tng-configure-default)
 
 ;; (use-package company-box
 ;;   :hook (company-mode . company-box-mode))
@@ -701,7 +704,6 @@
   :config
   (ivy-mode 1))
 
-
 (use-package counsel
   :bind (("C-M-j" . 'counsel-switch-buffer)
            ("M-x" . counsel-M-x)
@@ -741,6 +743,29 @@
          (yaml-mode . hl-todo-mode)))
 
 (use-package omnisharp)
+
+
+;; (defun efs/lsp-mode-setup ()
+  ;; (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  ;; (lsp-headerline-breadcrumb-mode))
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-doc-position 'bottom))
+
+(use-package lsp-treemacs
+  :after lsp)
+
+(use-package lsp-ivy)
+
+(use-package typescript-mode
+  :mode "\\.ts\\'"
+  :hook (typescript-mode . lsp-deferred)
+  :config
+  (setq typescript-indent-level 2))
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
 
 ;;; END NEW TESTS
 
