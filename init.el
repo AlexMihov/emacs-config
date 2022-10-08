@@ -35,7 +35,7 @@
           flyspell
           forge
           highlight-indentation
-          idle-highlight
+          ;;idle-highlight
           ido-vertical-mode
           js2-mode
           json-mode
@@ -76,6 +76,13 @@
 
 
 ;; Dashboard setup
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook)
+  ;; (setq dashboard-startup-banner "~/Documents/ardeo-logo-white.png")
+  (setq dashboard-startup-banner "~/Downloads/cool-doge.gif")
+  (setq dashboard-banner-logo-title "The Matrix has you... Follow the white rabbit..."))
 ;; (setq dashboard-startup-banner "/Users/alex/.emacs./ardeo-logo-red.svg")
 ;; End Dashboard setup
 ;; (ido-mode t)
@@ -95,8 +102,8 @@
 
 (exec-path-from-shell-initialize)
 
-(set-frame-font "Menlo 18")
-(exec-path-from-shell-initialize)
+;;(set-frame-font "Menlo 18")
+;;(exec-path-from-shell-initialize)
 
 (autoload 'php-mode "php-mode" "Major mode for editing PHP code." t)
 (add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
@@ -126,7 +133,6 @@
 
 
 
-
 (global-set-key [f8] 'neotree-toggle)
 ;; (define-key treemacs-mode-map [mouse-1] #'treemacs-single-click-expand-action)
 (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
@@ -137,6 +143,11 @@
 (setq magit-branch-read-upstream-first 'fallback)
 
 (savehist-mode 1)
+(global-set-key (kbd "C-s") 'save-buffer)
+
+(setq x-select-enable-clipboard t)
+(setq interprogram-paste-function 'x-cut-buffer-or-selection-value)
+
 
 ;; GTD Setup and Org mode tweaks
 
@@ -160,15 +171,25 @@
       '(("WORKING" . "#F57F17")))
 ;(add-to-list 'org-tag-faces '(".*" . (:foreground "cyan")))
 
+;; show emoji in the code
+(use-package emojify
+  :hook (after-init . global-emojify-mode))
 
 (add-hook 'org-mode-hook 'which-key-mode)
 (add-hook 'cider-mode-hook 'which-key-mode)
 
+;; add support for dot source blocks
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((dot . t)))
+
+;; remove indentation from source blocks that messes up formatting;
+(setq org-edit-src-content-indentation 0)
 
 (defun gtd ()
   "Open main GTD file"
   (interactive)
-  (find-file "/Users/alex/Documents/GTD/things.org")
+  (find-file "/home/alex/Documents/GTD/things.org")
   (shrink-window-if-larger-than-buffer)
   (other-window 1))
 
@@ -202,7 +223,9 @@
 ;; (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
 ;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 
-(global-set-key (kbd "C-c d") 'dired-jump)
+;; Custom Keybindings
+
+(global-set-key [mouse-8] 'winner-undo)
 
 (global-set-key "\C-x2" (lambda () (interactive)(split-window-vertically) (other-window 1)))
 (global-set-key "\C-x3" (lambda () (interactive)(split-window-horizontally) (other-window 1)))
@@ -268,7 +291,7 @@
 ;; (define-key web-mode-map (kbd "C-tab") 'emmet-expand-line)
 ;;(define-key emmet-mode-keymap [tab] 'emmet-expand-line)
 
-(dashboard-setup-startup-hook)
+;; (dashboard-setup-startup-hook)
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
 
@@ -353,8 +376,18 @@
 ;; automatically show colors as backgrounds to hex
 (add-hook 'prog-mode-hook 'rainbow-mode)
 
+;; (setq sgml-specials nil)
+;; (use-package sgml-mode
+  ;; :hook ((sgml-mode nxml-mode html-mode web-mode)
+         ;; . sgml-electric-tag-pair-mode))
+;; close html tags automatically when typing </
+;; (setq sgml-quick-keys 'close)
+
+
+(global-set-key (kbd "C-c d") 'dired-jump)
+
 ;; highlight words
-(add-hook 'prog-mode-hook (lambda () (idle-highlight-mode t)))
+;;(add-hook 'prog-mode-hook (lambda () (idle-highlight-mode t)))
 
 ;; EVIL MODE SETTING
 
@@ -362,6 +395,9 @@
 ;; Enable "M-x" in evil mode
 
 ;(global-set-key (kbd "M-x") 'execute-extended-command)
+
+(define-key evil-normal-state-map (kbd "M-.") nil)
+(define-key evil-normal-state-map (kbd "M-,") nil)
 
 (global-evil-leader-mode)
 (evil-leader/set-leader ",")
@@ -417,8 +453,10 @@
 
 (define-key global-map (kbd "s-/") 'comment-line)
 
-;;;: END CUSTOM SHORTCUTS;;;;
+(global-set-key (kbd "C-a") 'mark-whole-buffer)
 
+
+;;;: END CUSTOM SHORTCUTS;;;;
 
 ;; General Settings
 (setq gc-cons-threshold 20000000)
@@ -553,23 +591,23 @@
 (add-hook 'prog-mode-hook #'hs-minor-mode)
 
 ;;; MU4E
-(let ((default-directory "/usr/local/share/emacs/site-lisp/"))
-  (normal-top-level-add-subdirs-to-load-path))
+;; (let ((default-directory "/usr/local/share/emacs/site-lisp/"))
+  ;; (normal-top-level-add-subdirs-to-load-path))
 
-(require 'mu4e)
+;; (require 'mu4e)
 
 ;; use mu4e for e-mail in emacs
-(setq mail-user-agent 'mu4e-user-agent)
+;; (setq mail-user-agent 'mu4e-user-agent)
 
 ;; default
-(setq mu4e-maildir "~/.Mail/mihov.alex@gmail.com")
+;; (setq mu4e-maildir "~/.Mail/mihov.alex@gmail.com")
 
-(setq mu4e-drafts-folder "/[Gmail].Drafts")
-(setq mu4e-sent-folder   "/[Gmail].Sent Mail")
-(setq mu4e-trash-folder  "/[Gmail].Trash")
+;; (setq mu4e-drafts-folder "/[Gmail].Drafts")
+;; (setq mu4e-sent-folder   "/[Gmail].Sent Mail")
+;; (setq mu4e-trash-folder  "/[Gmail].Trash")
 
 ;; don't save message to Sent Messages, Gmail/IMAP takes care of this
-(setq mu4e-sent-messages-behavior 'delete)
+;; (setq mu4e-sent-messages-behavior 'delete)
 
 ;; (See the documentation for `mu4e-sent-messages-behavior' if you have
 ;; additional non-Gmail addresses and want assign them different
@@ -580,48 +618,48 @@
 ;; then, when you want archive some messages, move them to
 ;; the 'All Mail' folder by pressing ``ma''.
 
-(setq mu4e-maildir-shortcuts
-    '( ("/INBOX"               . ?i)
-       ("/[Gmail].Sent Mail"   . ?s)
-       ("/[Gmail].Trash"       . ?t)
-       ("/[Gmail].All Mail"    . ?a)))
+;; (setq mu4e-maildir-shortcuts
+    ;; '( ("/INBOX"               . ?i)
+       ;; ("/[Gmail].Sent Mail"   . ?s)
+       ;; ("/[Gmail].Trash"       . ?t)
+       ;; ("/[Gmail].All Mail"    . ?a)))
 
 ;; allow for updating mail using 'U' in the main view:
-(setq mu4e-get-mail-command "offlineimap")
+;; (setq mu4e-get-mail-command "offlineimap")
 
 ;; something about ourselves
-(setq
-   user-mail-address "mihov.alex@gmail.com"
-   user-full-name  "Alex Mihov"
-   mu4e-compose-signature
-    (concat
-     "Alex Mihov\n"
-      "https://mihov.ch\n"))
+;; (setq
+   ;; user-mail-address "mihov.alex@gmail.com"
+   ;; user-full-name  "Alex Mihov"
+   ;; mu4e-compose-signature
+    ;; (concat
+     ;; "Alex Mihov\n"
+      ;; "https://mihov.ch\n"))
 
 ;; sending mail -- replace USERNAME with your gmail username
 ;; also, make sure the gnutls command line utils are installed
 ;; package 'gnutls-bin' in Debian/Ubuntu
 
-(setq auth-sources
-      '((:source "~/.authinfo2.pg")))
+;; ( setq auth-sources
+      ;; '((:source "~/.authinfo2.pg")))
 
-(require 'smtpmail)
-(setq message-send-mail-function 'smtpmail-send-it
-   starttls-use-gnutls t
-   smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-   smtpmail-auth-credentials
-     '(("smtp.gmail.com" 587 "mihov.alex@gmail.com" nil))
-   smtpmail-default-smtp-server "smtp.gmail.com"
-   smtpmail-smtp-server "smtp.gmail.com"
-   smtpmail-smtp-service 587)
+;; (require 'smtpmail)
+;; (setq message-send-mail-function 'smtpmail-send-it
+   ;; starttls-use-gnutls t
+   ;; smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+   ;; smtpmail-auth-credentials
+     ;; '(("smtp.gmail.com" 587 "mihov.alex@gmail.com" nil))
+   ;; smtpmail-default-smtp-server "smtp.gmail.com"
+   ;; smtpmail-smtp-server "smtp.gmail.com"
+   ;; smtpmail-smtp-service 587)
 
-(add-to-list 'mu4e-view-actions '("View In Browser" . mu4e-action-view-in-browser) t)
+;(add-to-list 'mu4e-view-actions '("View In Browser" . mu4e-action-view-in-browser) t)
 
 ;; (setq fancy-splash-image-file "splash.pn")
-(setq fancy-splash-image "~/.emacs.d/ardeo-logo-red.svg")
+;; (setq fancy-splash-image "~/.emacs.d/ardeo-logo-red.svg")
 
-(set-fontset-font
- t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)
+;; (set-fontset-font
+ ;; t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)
 
 ;; alternatively, for emacs-24 you can use:
 ;;(setq message-send-mail-function 'smtpmail-send-it
@@ -632,12 +670,12 @@
 
 ;; don't keep message buffers around
 (setq message-kill-buffer-on-exit t)
-(define-key mu4e-headers-mode-map (kbd "C-c c") 'mu4e-org-store-and-capture)
-(define-key mu4e-view-mode-map (kbd "C-c c") 'mu4e-org-store-and-capture)
+;; (define-key mu4e-headers-mode-map (kbd "C-c c") 'mu4e-org-store-and-capture)
+;; (define-key mu4e-view-mode-map (kbd "C-c c") 'mu4e-org-store-and-capture)
 
-(setq mu4e-view-show-addresses t)
-(setq mu4e-update-interval (* 10 60))
-(setq mu4e-index-update-in-background t)
+;; (setq mu4e-view-show-addresses t)
+;; (setq mu4e-update-interval (* 10 60))
+;; (setq mu4e-index-update-in-background t)
 ;;; END MU4E
 
 ;;; LSP/Company
@@ -671,7 +709,7 @@
   :init
   (setq org-roam-v2-ack t)
   :custom
-  (org-roam-directory (file-truename "/Users/alex/Google Drive/_GTD/OrgRoam/"))
+  (org-roam-directory (file-truename "/home/alex/Documents/GTD/roam"))
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n g" . org-roam-graph)
@@ -767,6 +805,33 @@
 (use-package company-box
   :hook (company-mode . company-box-mode))
 
+(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+
+;; prevent variables from becoming lowercase when completing
+(setq company-dabbrev-downcase nil)
+
+
+;; Use Swiper for searching
+(global-set-key (kbd "C-f") 'swiper)
+(define-key evil-normal-state-map (kbd "C-f") 'swiper)
+
+(use-package emmet-mode
+  ;; :after(web-mode css-mode scss-mode)
+  :commands (emmet-mode emmet-expand-line yas/insert-snippet yas-insert-snippet company-complete)
+  :config
+  (setq emmet-move-cursor-between-quotes t)
+  (add-hook 'emmet-mode-hook (lambda () (setq emmet-indent-after-insert nil)))
+  (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+  (add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
+                                        ;(setq emmet-indentation 2)
+  (unbind-key "C-M-<left>" emmet-mode-keymap)
+  (unbind-key "C-M-<right>" emmet-mode-keymap)
+  :bind
+  ("C-j" . emmet-expand-line)
+  ((:map emmet-mode-keymap
+         ("C-c [" . emmet-prev-edit-point)
+         ("C-c ]" . emmet-next-edit-point)))
+  );end emmet mode
 ;;; END NEW TESTS
 
 
@@ -797,12 +862,13 @@
  '(global-display-line-numbers-mode t)
  '(global-linum-mode nil)
  '(global-prettify-symbols-mode t)
+ '(highlight-indent-guides-method 'character)
  '(js2-highlight-level 3)
  '(js2-init-hook '(ignore))
  '(org-adapt-indentation nil)
  '(org-agenda-files nil)
  '(package-selected-packages
-   '(company-box lsp-ui omnisharp writeroom-mode telega org-bullets counsel-projectile eterm-256color counsel paradox org-roam use-package move-text handlebars-mode fancy-mode fancy-battery lsp-treemacs lsp-intellij magit-delta mu4e-views ruby-electric ruby-extra-highlight hl-todo imenu-list centaur-tabs zen-mode spotify smooth-scrolling smooth-scroll docker gnu-elpa-keyring-update treemacs-evil apache-mode dired-rainbow company-inf-ruby company-suggest company-restclient smart-tab emmet-mode company-web lsp-ivy impatient-mode php-mode forge twig-mode buffer-move company org-super-agenda vue-mode lorem-ipsum dotenv-mode dockerfile-mode rake rvm ruby-tools idle-highlight-mode idle-highlight adaptive-wrap rainbow-mode enh-ruby-mode sass-mode treemacs-projectile js3-mode ng2-mode yasnippet-bundle json-mode tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape rainbow-delimiters csv-mode smex pdf-tools auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline ranger dashboard flyspell-correct flycheck-flow exec-path-from-shell restclient))
+   '(image+ rust-mode counsel-jq projectile-ripgrep company-ledger evil-ledger ledger-mode undo-tree lsp-origami origami folding highlight-indent-guides polymode ansible company-ansible web-mode simpleclip emojify unicode-fonts ob-restclient angular-mode yaml-mode company-box lsp-ui omnisharp writeroom-mode telega org-bullets counsel-projectile eterm-256color counsel paradox org-roam use-package move-text handlebars-mode fancy-mode fancy-battery lsp-treemacs lsp-intellij magit-delta mu4e-views ruby-electric ruby-extra-highlight hl-todo imenu-list centaur-tabs zen-mode spotify smooth-scrolling smooth-scroll docker gnu-elpa-keyring-update treemacs-evil apache-mode dired-rainbow company-inf-ruby company-suggest company-restclient smart-tab emmet-mode company-web lsp-ivy impatient-mode php-mode forge twig-mode buffer-move company org-super-agenda vue-mode lorem-ipsum dotenv-mode dockerfile-mode rake rvm ruby-tools idle-highlight-mode idle-highlight adaptive-wrap rainbow-mode enh-ruby-mode sass-mode treemacs-projectile js3-mode ng2-mode yasnippet-bundle json-mode tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape rainbow-delimiters csv-mode smex pdf-tools auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline ranger dashboard flyspell-correct flycheck-flow exec-path-from-shell restclient))
  '(paradox-github-token t))
 
 (put 'erase-buffer 'disabled nil)
