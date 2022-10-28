@@ -198,9 +198,9 @@
 (setq org-capture-templates
       '(("t" "Todo" entry (file+headline "~/Documents/GTD/INBOX.org" "Tasks")
          "* TODO %?\n  %i\n  %a")
-         ("c" "Chores" entry (file+headline "~/Documents/GTD/things.org" "Chore")
-         "* TODO %?\n  %i\n  %a")
-        ))
+         ("c" "Chores" entry (file+headline "~/Documents/GTD/things.org" "Chores")
+         "* TODO %?"
+        )))
 
 (setq org-agenda-files (list "~/Documents/GTD/things.org"
                              ))
@@ -319,8 +319,6 @@
 ;; (desktop-save-mode 1)
 
 (require 'org-tempo)
-
-(setq org-agenda-files (list "~/Documents/notes/notes.org"))
 
 (smex-initialize)
 (global-set-key (kbd "M-x") 'smex)
