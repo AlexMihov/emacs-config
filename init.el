@@ -139,6 +139,7 @@
 ;; (setq projectile-switch-project-action 'neotree-projectile-action)
 
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+(setq all-the-icons-dired-monochrome nil)
 
 (setq magit-branch-read-upstream-first 'fallback)
 
@@ -181,7 +182,8 @@
 ;; add support for dot source blocks
 (org-babel-do-load-languages
  'org-babel-load-languages
- '((dot . t)))
+ '((dot . t)
+   (shell . t)))
 
 ;; remove indentation from source blocks that messes up formatting;
 (setq org-edit-src-content-indentation 0)
@@ -207,8 +209,19 @@
 
 (define-key global-map "\C-ca" 'org-agenda)
 
+(setq org-refile-targets (quote ((nil :maxlevel . 9) ;; local buffer
+                                 (org-agenda-files :maxlevel . 4))))
+
+
 (move-text-default-bindings)
 
+;; (use-package org-rainbow-tags
+;;   :custom
+;;   (org-rainbow-tags-face-attributes
+;;    ;; Default is '(:foreground color :weight 'bold)
+;;    '(:foreground color :inverse-video t :box t :weight 'bold))
+;;   :hook
+;;   (org-mode . org-rainbow-tags-mode))
 
 (require 'multiple-cursors)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
@@ -406,6 +419,10 @@
   "q" 'evil-quit)
 
 (setq evil-want-fine-undo 'fine)
+(global-undo-tree-mode)
+(setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
+
+(evil-set-undo-system 'undo-tree)
 
 (require 'evil-surround)
 (global-evil-surround-mode 1)
@@ -443,6 +460,11 @@
 (evil-escape-mode)
 ;;;; END EVIL MODE SETTINGS
 
+;; Code folding?
+
+(use-package vimish-fold
+  :ensure t
+  :config (vimish-fold-global-mode t))
 
 ;;;; CUSTOM SHORTCUTS;;;;
 
@@ -460,9 +482,11 @@
 (setq gc-cons-threshold 20000000)
 (setq make-backup-files nil)
 (setq backup-directory-alist
-    `((".*" . ,(concat user-emacs-directory "backups"))))
+      `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
-    `((".*" ,(concat user-emacs-directory "backups"))))
+      `((".*" ,temporary-file-directory t)))
+
+(fset 'yes-or-no-p 'y-or-n-p)
 
 ;;; PRETTIER
 
@@ -532,6 +556,10 @@
 (defun autoformat-yaml-command ()
   "CLI tool to format YAML."
   "prettier --parser yaml")
+
+(defun autoformat-typescript-command ()
+  "CLI tool to format Typescript."
+  "prettier --parser typescript")
 
 (defun autoformat-prettier-eslint-command ()
   "CLI tool to format Javascript with .eslintrc.json configuration."
@@ -830,6 +858,13 @@
          ("C-c [" . emmet-prev-edit-point)
          ("C-c ]" . emmet-next-edit-point)))
   );end emmet mode
+
+(use-package docker
+  :ensure t
+  :bind ("C-c C-d" . docker))
+
+
+
 ;;; END NEW TESTS
 
 
@@ -864,9 +899,11 @@
  '(js2-highlight-level 3)
  '(js2-init-hook '(ignore))
  '(org-adapt-indentation nil)
- '(org-agenda-files nil)
+ '(org-agenda-files '("~/Documents/GTD/things.org"))
+ '(org-modules
+   '(ol-bbdb ol-bibtex ol-docview ol-eww ol-gnus org-habit ol-info ol-irc ol-mhe ol-rmail ol-w3m))
  '(package-selected-packages
-   '(image+ rust-mode counsel-jq projectile-ripgrep company-ledger evil-ledger ledger-mode undo-tree lsp-origami origami folding highlight-indent-guides polymode ansible company-ansible web-mode simpleclip emojify unicode-fonts ob-restclient angular-mode yaml-mode company-box lsp-ui omnisharp writeroom-mode telega org-bullets counsel-projectile eterm-256color counsel paradox org-roam use-package move-text handlebars-mode fancy-mode fancy-battery lsp-treemacs lsp-intellij magit-delta mu4e-views ruby-electric ruby-extra-highlight hl-todo imenu-list centaur-tabs zen-mode spotify smooth-scrolling smooth-scroll docker gnu-elpa-keyring-update treemacs-evil apache-mode dired-rainbow company-inf-ruby company-suggest company-restclient smart-tab emmet-mode company-web lsp-ivy impatient-mode php-mode forge twig-mode buffer-move company org-super-agenda vue-mode lorem-ipsum dotenv-mode dockerfile-mode rake rvm ruby-tools idle-highlight-mode idle-highlight adaptive-wrap rainbow-mode enh-ruby-mode sass-mode treemacs-projectile js3-mode ng2-mode yasnippet-bundle json-mode tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape rainbow-delimiters csv-mode smex pdf-tools auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline ranger dashboard flyspell-correct flycheck-flow exec-path-from-shell restclient))
+   '(auto-rename-tag org-modern vimish-fold org-rainbow-tags image+ rust-mode counsel-jq projectile-ripgrep company-ledger evil-ledger ledger-mode undo-tree lsp-origami origami folding highlight-indent-guides polymode ansible company-ansible web-mode simpleclip emojify unicode-fonts ob-restclient angular-mode yaml-mode company-box lsp-ui omnisharp writeroom-mode telega org-bullets counsel-projectile eterm-256color counsel paradox org-roam use-package move-text handlebars-mode fancy-mode fancy-battery lsp-treemacs lsp-intellij magit-delta mu4e-views ruby-electric ruby-extra-highlight hl-todo imenu-list centaur-tabs zen-mode spotify smooth-scrolling smooth-scroll docker gnu-elpa-keyring-update treemacs-evil apache-mode dired-rainbow company-inf-ruby company-suggest company-restclient smart-tab emmet-mode company-web lsp-ivy impatient-mode php-mode forge twig-mode buffer-move company org-super-agenda vue-mode lorem-ipsum dotenv-mode dockerfile-mode rake rvm ruby-tools idle-highlight-mode idle-highlight adaptive-wrap rainbow-mode enh-ruby-mode sass-mode treemacs-projectile js3-mode ng2-mode yasnippet-bundle json-mode tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape rainbow-delimiters csv-mode smex pdf-tools auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline ranger dashboard flyspell-correct flycheck-flow exec-path-from-shell restclient))
  '(paradox-github-token t))
 
 (put 'erase-buffer 'disabled nil)
