@@ -67,6 +67,7 @@
           which-key
           wttrin
           ac-cider
+          editorconfig
           ))
 (package-initialize)
 
@@ -99,6 +100,9 @@
 ;; (ido-vertical-mode 1)
 ;; (setq ido-vertical-define-keys 'C-n-C-p-up-and-down)
 
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 (setq epa-pinentry-mode 'loopback)
@@ -112,9 +116,9 @@
 ;;(set-frame-font "Menlo 18")
 ;;(exec-path-from-shell-initialize)
 
-(autoload 'php-mode "php-mode" "Major mode for editing PHP code." t)
-(add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
-(add-to-list 'auto-mode-alist '("\\.inc$" . php-mode))
+;; (autoload 'php-mode "php-mode" "Major mode for editing PHP code." t)
+;; (add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
+;; (add-to-list 'auto-mode-alist '("\\.inc$" . php-mode))
 
 
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
@@ -124,10 +128,10 @@
 
 (global-set-key (kbd "C-x g") 'magit-status)
 
-(with-eval-after-load 'magit
-  (require 'forge))
+;; (with-eval-after-load 'magit
+;;   (require 'forge))
 
-;; (setq auth-sources '("~/.authinfo"))
+ ;; (setq auth-sources '("~/.authinfo"))
 
 
 (with-eval-after-load 'forge
@@ -174,7 +178,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(blamer-face ((t :foreground "#7a88cf" :background nil :italic t)) t)
+ '(blamer-face ((t :foreground "#7a88cf" :background nil :italic t)))
  '(js2-private-function-call ((t (:foreground "goldenrod"))))
  '(js2-private-member ((t (:foreground "ff0000")))))
 (setq org-todo-keyword-faces
@@ -255,7 +259,6 @@
 (menu-bar-mode -1)
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
-(doom-modeline-mode 1)
 (winner-mode 1)
 (delete-selection-mode 1)
 (global-prettify-symbols-mode +1)
@@ -964,7 +967,7 @@
  '(org-modules
    '(ol-bbdb ol-bibtex ol-docview ol-eww ol-gnus org-habit ol-info ol-irc ol-mhe ol-rmail ol-w3m))
  '(package-selected-packages
-   '(magithub evil-owl org-autolist good-scroll emacs-everywhere groovy-mode gnuplot rinari gradle-mode treesit-auto tree-sitter-langs blamer minimap atomic-chrome auto-rename-tag org-modern vimish-fold org-rainbow-tags image+ rust-mode counsel-jq projectile-ripgrep company-ledger evil-ledger ledger-mode undo-tree lsp-origami origami folding highlight-indent-guides polymode ansible company-ansible web-mode simpleclip emojify unicode-fonts ob-restclient angular-mode yaml-mode company-box lsp-ui omnisharp writeroom-mode telega org-bullets counsel-projectile eterm-256color counsel paradox org-roam use-package move-text handlebars-mode fancy-mode fancy-battery lsp-treemacs lsp-intellij magit-delta mu4e-views ruby-electric ruby-extra-highlight hl-todo imenu-list centaur-tabs zen-mode spotify smooth-scrolling smooth-scroll docker gnu-elpa-keyring-update treemacs-evil apache-mode dired-rainbow company-inf-ruby company-suggest company-restclient smart-tab emmet-mode company-web lsp-ivy impatient-mode php-mode forge twig-mode buffer-move company org-super-agenda vue-mode lorem-ipsum dotenv-mode dockerfile-mode rake rvm ruby-tools idle-highlight-mode idle-highlight adaptive-wrap rainbow-mode enh-ruby-mode sass-mode treemacs-projectile js3-mode ng2-mode yasnippet-bundle json-mode tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape rainbow-delimiters csv-mode smex pdf-tools auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline ranger dashboard flyspell-correct flycheck-flow exec-path-from-shell restclient))
+   '(xref-union nerd-icons-ivy-rich evil-owl org-autolist good-scroll emacs-everywhere groovy-mode gnuplot rinari gradle-mode treesit-auto tree-sitter-langs blamer minimap atomic-chrome auto-rename-tag org-modern vimish-fold org-rainbow-tags image+ rust-mode counsel-jq projectile-ripgrep company-ledger evil-ledger ledger-mode undo-tree lsp-origami origami folding highlight-indent-guides polymode ansible company-ansible web-mode simpleclip emojify unicode-fonts ob-restclient angular-mode yaml-mode company-box lsp-ui omnisharp writeroom-mode telega org-bullets counsel-projectile eterm-256color counsel paradox org-roam use-package move-text handlebars-mode fancy-mode fancy-battery lsp-treemacs lsp-intellij magit-delta mu4e-views ruby-electric ruby-extra-highlight hl-todo imenu-list centaur-tabs zen-mode spotify smooth-scrolling smooth-scroll docker gnu-elpa-keyring-update treemacs-evil apache-mode dired-rainbow company-inf-ruby company-suggest company-restclient smart-tab emmet-mode company-web lsp-ivy impatient-mode php-mode forge twig-mode buffer-move company org-super-agenda vue-mode lorem-ipsum dotenv-mode dockerfile-mode rake rvm ruby-tools idle-highlight-mode idle-highlight adaptive-wrap rainbow-mode enh-ruby-mode sass-mode treemacs-projectile js3-mode ng2-mode yasnippet-bundle json-mode tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape rainbow-delimiters csv-mode smex pdf-tools auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline ranger dashboard flyspell-correct flycheck-flow exec-path-from-shell restclient))
  '(paradox-github-token t))
 
 (put 'erase-buffer 'disabled nil)
