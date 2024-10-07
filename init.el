@@ -1,11 +1,15 @@
 (require 'package)
 
-;; (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-;;                          ("marmalade" . "http://marmalade-repo.org/packages/")
-;;                          ("melpa" . "http://melpa.org/packages/")))
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")
                          ("org" . "https://orgmode.org/elpa/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")))
+                         ("elpa" . "https://elpa.gnu.org/packages/")
+                         ;; ("melpa-stable" . "https://stable.melpa.org/packages/")
+))
+(setq package-check-signature nil)
+(setq max-lisp-eval-depth 10000)
+(setq max-specpdl-size 13000)
+
 (defvar my-packages '(
           ;; ac-js2
           ag
@@ -72,7 +76,10 @@
     (package-install p))
   (add-to-list 'package-selected-packages p))
 
+(load "/home/alex/.emacs.d/lisp/drools-mode.el")
 
+;; Optionally, automatically use drools-mode for .drl files
+(add-to-list 'auto-mode-alist '("\\.drl\\'" . drools-mode))
 
 
 ;; Dashboard setup
@@ -100,7 +107,7 @@
 ;; increase the font globally for bigger resolutions
 ;(set-face-attribute 'default nil :height 140)
 
-(exec-path-from-shell-initialize)
+;;(exec-path-from-shell-initialize)
 
 ;;(set-frame-font "Menlo 18")
 ;;(exec-path-from-shell-initialize)
@@ -149,6 +156,8 @@
 (setq x-select-enable-clipboard t)
 (setq interprogram-paste-function 'x-cut-buffer-or-selection-value)
 
+(require 'atomic-chrome)
+(atomic-chrome-start-server)
 
 ;; GTD Setup and Org mode tweaks
 
@@ -165,7 +174,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(hl-todo ((t (:inherit hl-todo :italic t))))
+ '(blamer-face ((t :foreground "#7a88cf" :background nil :italic t)) t)
  '(js2-private-function-call ((t (:foreground "goldenrod"))))
  '(js2-private-member ((t (:foreground "ff0000")))))
 (setq org-todo-keyword-faces
@@ -193,7 +202,7 @@
   (interactive)
   (find-file "/home/alex/Documents/GTD/things.org")
   (shrink-window-if-larger-than-buffer)
-  (other-window 1))
+  (other-window 0))
 
 (define-key global-map "\C-cc" 'org-capture)
 
@@ -265,8 +274,6 @@
 (add-hook 'sh-mode-hook         'hs-minor-mode)
 (add-hook 'js2-mode 'hs-minor-mode)
 
-;; (require 'lsp-mode)
-
 (add-hook 'typescript-mode-hook #'lsp)
 (add-hook 'js2-mode #'lsp)
 
@@ -290,6 +297,18 @@
 (setq python-indent 2)
 
 (setq css-indent-offset 2)
+
+(setq-default show-trailing-whitespace t)
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+(setq sentence-end-double-space nil)
+(setq sh-basic-offset 2)
+(setq-default indent-tabs-mode nil)
+(setq tab-width 2)
+(setq-default tab-always-indent 'complete)
+(add-hook #'java-mode-hook (lambda () (setq c-basic-offset 2)))
+(setq css-indent-offset 2)
+(setq js-indent-level 2)
 
 (setq js2-mode-show-parse-errors nil)
 (setq js2-mode-show-parse-warnings nil)
@@ -598,6 +617,12 @@
 (add-hook 'robe-mode-hook 'ac-robe-setup)
 (add-to-list 'auto-mode-alist '("\\.erb?\\'" . robe-mode))
 
+(global-company-mode t)
+(push 'company-robe company-backends)
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
+
 (add-hook 'enh-ruby-mode-hook 'auto-complete-mode)
 (require 'rvm)
 (rvm-use-default) ;; use rvm's default ruby for the current Emacs session
@@ -615,6 +640,12 @@
                                 (delete-trailing-whitespace))))
 
 (add-hook 'prog-mode-hook #'hs-minor-mode)
+
+
+;;; Latex
+
+(setq lsp-tex-server 'digestif)
+
 
 ;;; MU4E
 ;; (let ((default-directory "/usr/local/share/emacs/site-lisp/"))
@@ -863,11 +894,41 @@
   :ensure t
   :bind ("C-c C-d" . docker))
 
-
+(use-package blamer
+  :ensure t
+  :bind (("s-i" . blamer-show-commit-info)
+         ;; ("C-c i" . ("s-i" . blamer-show-posframe-commit-info))
+         )
+  :defer 20
+  :custom
+  (blamer-idle-time 0.3)
+  (blamer-min-offset 70)
+  :custom-face
+  (blamer-face ((t :foreground "#7a88cf"
+                    :background nil
+                    :italic t)))
+  :config
+  (global-blamer-mode 1))
 
 ;;; END NEW TESTS
 
+;;; AI Stuff
 
+(use-package copilot
+  :load-path (lambda () (expand-file-name "copilot.el" user-emacs-directory))
+  :diminish)
+
+(define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+(define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+(add-to-list 'copilot-major-mode-alist '("enh-ruby" . "ruby"))
+
+(global-copilot-mode)
+
+;; do not ask for confirmation when evaluating code blocks in org
+
+;;; End AI Stuff
+
+(setq org-confirm-babel-evaluate nil)
 ;; (defun add-emmet-expand-to-smart-tab-completions ()
 ;;   ;; Add an entry for current major mode in
 ;;   ;; `smart-tab-completion-functions-alist' to use
@@ -889,7 +950,7 @@
  ;; If there is more than one, they won't work right.
  '(custom-enabled-themes '(doom-material))
  '(custom-safe-themes
-   '("b186688fbec5e00ee8683b9f2588523abdf2db40562839b2c5458fcfb322c8a4" "6c531d6c3dbc344045af7829a3a20a09929e6c41d7a7278963f7d3215139f6a7" "7eea50883f10e5c6ad6f81e153c640b3a288cd8dc1d26e4696f7d40f754cc703" "1f1b545575c81b967879a5dddc878783e6ebcca764e4916a270f9474215289e5" "a82ab9f1308b4e10684815b08c9cac6b07d5ccb12491f44a942d845b406b0296" "234dbb732ef054b109a9e5ee5b499632c63cc24f7c2383a849815dacc1727cb6" "1d5e33500bc9548f800f9e248b57d1b2a9ecde79cb40c0b1398dec51ee820daf" "97db542a8a1731ef44b60bc97406c1eb7ed4528b0d7296997cbb53969df852d6" "cbdf8c2e1b2b5c15b34ddb5063f1b21514c7169ff20e081d39cf57ffee89bc1e" "6c98bc9f39e8f8fd6da5b9c74a624cbb3782b4be8abae8fd84cbc43053d7c175" "028c226411a386abc7f7a0fba1a2ebfae5fe69e2a816f54898df41a6a3412bb5" "613aedadd3b9e2554f39afe760708fc3285bf594f6447822dd29f947f0775d6c" "f91395598d4cb3e2ae6a2db8527ceb83fed79dbaf007f435de3e91e5bda485fb" "da186cce19b5aed3f6a2316845583dbee76aea9255ea0da857d1c058ff003546" "8d7b028e7b7843ae00498f68fad28f3c6258eda0650fe7e17bfb017d51d0e2a2" "23c806e34594a583ea5bbf5adf9a964afe4f28b4467d28777bcba0d35aa0872e" "266ecb1511fa3513ed7992e6cd461756a895dcc5fef2d378f165fed1c894a78c" "d47f868fd34613bd1fc11721fe055f26fd163426a299d45ce69bef1f109e1e71" "b5803dfb0e4b6b71f309606587dd88651efe0972a5be16ece6a958b197caeed8" "e8df30cd7fb42e56a4efc585540a2e63b0c6eeb9f4dc053373e05d774332fc13" "4b6b6b0a44a40f3586f0f641c25340718c7c626cbf163a78b5a399fbe0226659" "0466adb5554ea3055d0353d363832446cd8be7b799c39839f387abb631ea0995" "7a7b1d475b42c1a0b61f3b1d1225dd249ffa1abb1b7f726aec59ac7ca3bf4dae" "a9a67b318b7417adbedaab02f05fa679973e9718d9d26075c6235b1f0db703c8" "1817f2521f95cd2ff06084845ee94d1a1c4fd60dd47959574581687f904721fc" "100e7c5956d7bb3fd0eebff57fde6de8f3b9fafa056a2519f169f85199cc1c96" "ba13202a1b1f987600fe2e33df9abcf9c0131d99b16d57dddf65096a292403c4" "d2e9c7e31e574bf38f4b0fb927aaff20c1e5f92f72001102758005e53d77b8c9" "151bde695af0b0e69c3846500f58d9a0ca8cb2d447da68d7fbf4154dcf818ebc" default))
+   '("2721b06afaf1769ef63f942bf3e977f208f517b187f2526f0e57c1bd4a000350" "b186688fbec5e00ee8683b9f2588523abdf2db40562839b2c5458fcfb322c8a4" "6c531d6c3dbc344045af7829a3a20a09929e6c41d7a7278963f7d3215139f6a7" "7eea50883f10e5c6ad6f81e153c640b3a288cd8dc1d26e4696f7d40f754cc703" "1f1b545575c81b967879a5dddc878783e6ebcca764e4916a270f9474215289e5" "a82ab9f1308b4e10684815b08c9cac6b07d5ccb12491f44a942d845b406b0296" "234dbb732ef054b109a9e5ee5b499632c63cc24f7c2383a849815dacc1727cb6" "1d5e33500bc9548f800f9e248b57d1b2a9ecde79cb40c0b1398dec51ee820daf" "97db542a8a1731ef44b60bc97406c1eb7ed4528b0d7296997cbb53969df852d6" "cbdf8c2e1b2b5c15b34ddb5063f1b21514c7169ff20e081d39cf57ffee89bc1e" "6c98bc9f39e8f8fd6da5b9c74a624cbb3782b4be8abae8fd84cbc43053d7c175" "028c226411a386abc7f7a0fba1a2ebfae5fe69e2a816f54898df41a6a3412bb5" "613aedadd3b9e2554f39afe760708fc3285bf594f6447822dd29f947f0775d6c" "f91395598d4cb3e2ae6a2db8527ceb83fed79dbaf007f435de3e91e5bda485fb" "da186cce19b5aed3f6a2316845583dbee76aea9255ea0da857d1c058ff003546" "8d7b028e7b7843ae00498f68fad28f3c6258eda0650fe7e17bfb017d51d0e2a2" "23c806e34594a583ea5bbf5adf9a964afe4f28b4467d28777bcba0d35aa0872e" "266ecb1511fa3513ed7992e6cd461756a895dcc5fef2d378f165fed1c894a78c" "d47f868fd34613bd1fc11721fe055f26fd163426a299d45ce69bef1f109e1e71" "b5803dfb0e4b6b71f309606587dd88651efe0972a5be16ece6a958b197caeed8" "e8df30cd7fb42e56a4efc585540a2e63b0c6eeb9f4dc053373e05d774332fc13" "4b6b6b0a44a40f3586f0f641c25340718c7c626cbf163a78b5a399fbe0226659" "0466adb5554ea3055d0353d363832446cd8be7b799c39839f387abb631ea0995" "7a7b1d475b42c1a0b61f3b1d1225dd249ffa1abb1b7f726aec59ac7ca3bf4dae" "a9a67b318b7417adbedaab02f05fa679973e9718d9d26075c6235b1f0db703c8" "1817f2521f95cd2ff06084845ee94d1a1c4fd60dd47959574581687f904721fc" "100e7c5956d7bb3fd0eebff57fde6de8f3b9fafa056a2519f169f85199cc1c96" "ba13202a1b1f987600fe2e33df9abcf9c0131d99b16d57dddf65096a292403c4" "d2e9c7e31e574bf38f4b0fb927aaff20c1e5f92f72001102758005e53d77b8c9" "151bde695af0b0e69c3846500f58d9a0ca8cb2d447da68d7fbf4154dcf818ebc" default))
  '(eldoc-minor-mode-string " Eldoc-eval")
  '(flycheck-checker-error-threshold 1000)
  '(global-display-line-numbers-mode t)
@@ -903,7 +964,7 @@
  '(org-modules
    '(ol-bbdb ol-bibtex ol-docview ol-eww ol-gnus org-habit ol-info ol-irc ol-mhe ol-rmail ol-w3m))
  '(package-selected-packages
-   '(auto-rename-tag org-modern vimish-fold org-rainbow-tags image+ rust-mode counsel-jq projectile-ripgrep company-ledger evil-ledger ledger-mode undo-tree lsp-origami origami folding highlight-indent-guides polymode ansible company-ansible web-mode simpleclip emojify unicode-fonts ob-restclient angular-mode yaml-mode company-box lsp-ui omnisharp writeroom-mode telega org-bullets counsel-projectile eterm-256color counsel paradox org-roam use-package move-text handlebars-mode fancy-mode fancy-battery lsp-treemacs lsp-intellij magit-delta mu4e-views ruby-electric ruby-extra-highlight hl-todo imenu-list centaur-tabs zen-mode spotify smooth-scrolling smooth-scroll docker gnu-elpa-keyring-update treemacs-evil apache-mode dired-rainbow company-inf-ruby company-suggest company-restclient smart-tab emmet-mode company-web lsp-ivy impatient-mode php-mode forge twig-mode buffer-move company org-super-agenda vue-mode lorem-ipsum dotenv-mode dockerfile-mode rake rvm ruby-tools idle-highlight-mode idle-highlight adaptive-wrap rainbow-mode enh-ruby-mode sass-mode treemacs-projectile js3-mode ng2-mode yasnippet-bundle json-mode tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape rainbow-delimiters csv-mode smex pdf-tools auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline ranger dashboard flyspell-correct flycheck-flow exec-path-from-shell restclient))
+   '(magithub evil-owl org-autolist good-scroll emacs-everywhere groovy-mode gnuplot rinari gradle-mode treesit-auto tree-sitter-langs blamer minimap atomic-chrome auto-rename-tag org-modern vimish-fold org-rainbow-tags image+ rust-mode counsel-jq projectile-ripgrep company-ledger evil-ledger ledger-mode undo-tree lsp-origami origami folding highlight-indent-guides polymode ansible company-ansible web-mode simpleclip emojify unicode-fonts ob-restclient angular-mode yaml-mode company-box lsp-ui omnisharp writeroom-mode telega org-bullets counsel-projectile eterm-256color counsel paradox org-roam use-package move-text handlebars-mode fancy-mode fancy-battery lsp-treemacs lsp-intellij magit-delta mu4e-views ruby-electric ruby-extra-highlight hl-todo imenu-list centaur-tabs zen-mode spotify smooth-scrolling smooth-scroll docker gnu-elpa-keyring-update treemacs-evil apache-mode dired-rainbow company-inf-ruby company-suggest company-restclient smart-tab emmet-mode company-web lsp-ivy impatient-mode php-mode forge twig-mode buffer-move company org-super-agenda vue-mode lorem-ipsum dotenv-mode dockerfile-mode rake rvm ruby-tools idle-highlight-mode idle-highlight adaptive-wrap rainbow-mode enh-ruby-mode sass-mode treemacs-projectile js3-mode ng2-mode yasnippet-bundle json-mode tern-auto-complete smart-jump dumb-jump js2-mode ido-vertical-mode ag tern eslint-fix wttrin yahoo-weather all-the-icons-dired git-gutter flyspell evil-surround evil-numbers evil-mc evil-leader evil-escape rainbow-delimiters csv-mode smex pdf-tools auto-complete ac-js2 ac-cider clojure-mode clj-refactor cider doom-themes all-the-icons doom-modeline ranger dashboard flyspell-correct flycheck-flow exec-path-from-shell restclient))
  '(paradox-github-token t))
 
 (put 'erase-buffer 'disabled nil)
